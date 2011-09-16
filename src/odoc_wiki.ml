@@ -218,17 +218,17 @@ class virtual text =
       bs b "//"
 
     method html_of_Center b t =
-      bs b "\n<<div class=\"aligncenter\"|";
+      bs b "\n<<div style=\"text-align: center;\"|";
       self#html_of_text b t;
       bs b ">>\n"
 
     method html_of_Left b t =
-      bs b "\n<<div class=\"alignleft\">";
+      bs b "\n<<div style=\"text-align: left;\">";
       self#html_of_text b t;
       bs b ">>\n"
 
     method html_of_Right b t =
-      bs b "\n<<div class=\"alignright\">";
+      bs b "\n<<div style=\"text-align: right;\">";
       self#html_of_text b t;
       bs b ">>\n"
 
@@ -257,7 +257,7 @@ class virtual text =
     method html_of_Newline b = bs b "\\\\\n\n"
 
     method html_of_Block b t =
-      bs b "\n<< div class=\"blockquote\"|";
+      bs b "\n<< div class=\"odocwiki_blockquote\"|";
       self#html_of_text b t;
       bs b ">>\n"
 
@@ -492,12 +492,12 @@ class virtual info =
           ()
       | Some info ->
           let module M = Odoc_info in
-          if indent then bs b "<<div class=\"info\"|";
+          if indent then bs b "<<div class=\"odocwiki_info\"|";
           (
            match info.M.i_deprecated with
             None -> ()
            | Some d ->
-               bs b "<<span class=\"warning\"|";
+               bs b "<<span class=\"odocwiki_warning\"|";
                bs b Odoc_messages.deprecated ;
                bs b ">>" ;
                self#html_of_text b d;
@@ -527,8 +527,8 @@ class virtual info =
       | Some info ->
           let module M = Odoc_info in
           let dep = info.M.i_deprecated <> None in
-          bs b "<<div class=\"info\"|";
-          if dep then bs b "<<span class=\"deprecated\"|";
+          bs b "<<div class=\"odocwiki_info\"|";
+          if dep then bs b "<<span class=\"odocwiki_deprecated\"|";
           (
            match info.M.i_desc with
              None -> ()
@@ -667,10 +667,10 @@ class wiki =
 
    (** Return html code with the given string in the keyword style.*)
     method keyword s =
-      "<<span class=\"keyword\"|"^s^">>"
+      "<<span class=\"ocsforge_color_keyword\"|"^s^">>"
 
     (** Return html code with the given string in the constructor style. *)
-    method constructor s = "<<span class=\"constructor\"|"^s^">>"
+    method constructor s = "<<span class=\"ocsforge_color_uid\"|"^s^">>"
 
     (** Output the given ocaml code to the given file name. *)
     method private output_code in_title file code =
@@ -740,14 +740,14 @@ class wiki =
       let s = Odoc_info.remove_ending_newline (Odoc_info.string_of_type_expr t) in
       let s2 = newline_to_indented_br s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
-      if s3 <> "" then bp b "<<span class=\"code type\"|%s>>" s3
+      if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3
 
     (** Print html code to display a [Types.type_expr list]. *)
     method html_of_type_expr_list ?par b m_name sep l =
       let s = Odoc_info.string_of_type_list ?par sep l in
       let s2 = newline_to_indented_br s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
-      if s3 <> "" then bp b "<<span class=\"code type\"|%s>>" s3
+      if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3
 
     (** Print html code to display a [Types.type_expr list] as type parameters
        of a class of class type. *)
@@ -755,27 +755,27 @@ class wiki =
       let s = Odoc_info.string_of_class_type_param_list l in
       let s2 = newline_to_indented_br s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
-      if s3 <> "" then bp b "<<span class=\"code type\"|[%s]>>" s3
+      if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|[%s]>>" s3
 
     method html_of_class_parameter_list b father c =
       let s = Odoc_info.string_of_class_params c in
       let s = Odoc_info.remove_ending_newline s in
       let s2 = newline_to_indented_br s in
       let s3 = self#create_fully_qualified_idents_links father s2 in
-      if s3 <> "" then bp b "<<span class=\"code type\"|%s>>" s3
+      if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3
 
     (** Print html code to display a list of type parameters for the given type.*)
     method html_of_type_expr_param_list b m_name t =
       let s = Odoc_info.string_of_type_param_list t in
       let s2 = newline_to_indented_br s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
-      if s3 <> "" then bp b "<<span class=\"code type\"|%s>>" s3
+      if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3
 
     (** Print html code to display a [Types.module_type]. *)
     method html_of_module_type b ?code m_name t =
       let s = Odoc_info.remove_ending_newline (Odoc_info.string_of_module_type ?code t) in
       let s2 = self#create_fully_qualified_module_idents_links m_name s in
-      if s2 <> "" then bp b "<<span class=\"code type\"|%s>>" s2
+      if s2 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s2
 
 
     (** Print html code to display the given module kind. *)
@@ -786,7 +786,7 @@ class wiki =
           (
            match modu with
              None ->
-               bs b "<<div class=\"sig_block\"|";
+               bs b "<<div class=\"odocwiki_sig_block\"|";
                List.iter (self#html_of_module_element b father) eles;
                bs b ">>"
            | Some m ->
@@ -794,14 +794,14 @@ class wiki =
           );
           self#html_of_text b [Code "end"]
       | Module_alias a ->
-          bs b "<<span class=\"code type\"|";
+          bs b "<<span class=\"odocwiki_type\"|";
           bs b (self#create_fully_qualified_module_idents_links father a.ma_name);
           bs b ">>"
       | Module_functor (p, k) ->
           if !Odoc_info.Args.html_short_functors then
             bs b " "
           else
-            bs b "<<div class=\"sig_block\"|";
+            bs b "<<div class=\"odocwiki_sig_block\"|";
           self#html_of_module_parameter b father p;
           (
            match k with
@@ -829,16 +829,16 @@ class wiki =
 	   with Not_found -> ()
 	  );
           self#html_of_module_type_kind b father ?modu k;
-	  bp b "<<span class=\"code type\"|{{{  }}}%s>>" s3
+	  bp b "<<span class=\"odocwiki_type\"|{{{  }}}%s>>" s3
       | Module_constraint (k, tk) ->
           (* TODO: on affiche quoi ? *)
           self#html_of_module_kind b father ?modu k
       | Module_typeof s ->
-          bs b "<<span class=\"code type\"|module type of ";
+          bs b "<<span class=\"odocwiki_type\"|module type of ";
           bs b (self#create_fully_qualified_module_idents_links father s);
           bs b ">>"
       | Module_unpack (code, mta) ->
-          bs b "<<span class=\"code type\"|";
+          bs b "<<span class=\"odocwiki_type\"|";
           begin
             match mta.mta_module with
               None ->
@@ -896,7 +896,7 @@ class wiki =
                (
                 match modu with
                   None ->
-                    bs b "<<div class=\"sig_block\"|";
+                    bs b "<<div class=\"odocwiki_sig_block\"|";
                     List.iter (self#html_of_module_element b father) eles;
                     bs b ">>"
                 | Some m ->
@@ -910,7 +910,7 @@ class wiki =
           self#html_of_module_parameter b father p;
           self#html_of_module_type_kind b father ?modu ?mt k;
       | Module_type_alias a ->
-          bs b "<<span class=\"code type\"|";
+          bs b "<<span class=\"odocwiki_type\"|";
           bs b (self#create_fully_qualified_module_idents_links father a.mta_name);
           bs b ">>"
       | Module_type_with (k, s) ->
@@ -922,9 +922,9 @@ class wiki =
 	   with Not_found -> ()
 	  );
           self#html_of_module_type_kind b father ?modu ?mt k;
-	  bp b "<<span class=\"code type\"|{{{  }}}%s>>" s3
+	  bp b "<<span class=\"odocwiki_type\"|{{{  }}}%s>>" s3
       | Module_type_typeof s ->
-          bs b "<<span class=\"code type\"|module type of ";
+          bs b "<<span class=\"odocwiki_type\"|module type of ";
           bs b (self#create_fully_qualified_module_idents_links father s);
           bs b ">>"
 
@@ -945,7 +945,7 @@ class wiki =
     (** Print html code for a value. *)
     method html_of_value b v =
       Odoc_info.reset_type_names ();
-      bp b "<<div id=\"%s\" class=\"code\"|" (Naming.value_target v);
+      bp b "<<pre id=\"%s\" class=\"ocsforge_color\"|" (Naming.value_target v);
       bs b (self#keyword "val");
       bs b " ";
       (
@@ -970,7 +970,7 @@ class wiki =
     (** Print html code for an exception. *)
     method html_of_exception b e =
       Odoc_info.reset_type_names ();
-      bp b "<<div  id=\"%s\" class=\"code\"|" (Naming.exception_target e);
+      bp b "<<pre id=\"%s\" class=\"ocsforge_color\"|" (Naming.exception_target e);
       bs b (self#keyword "exception");
       bs b " ";
       bs b (Name.simple e.ex_name);
@@ -1000,7 +1000,7 @@ class wiki =
     method html_of_type b t =
       Odoc_info.reset_type_names ();
       let father = Name.father t.ty_name in
-      bp b "<<div class=\"code\" id=\"%s\"|" (Naming.type_target t);
+      bp b "<<pre class=\"ocsforge_color\" id=\"%s\"|" (Naming.type_target t);
       bs b ((self#keyword "type")^" ");
       self#html_of_type_expr_param_list b father t;
       (match t.ty_parameters with [] -> () | _ -> bs b " ");
@@ -1020,12 +1020,12 @@ class wiki =
       | Type_variant l ->
           bs b " = ";
           if priv then bs b "private ";
-          let tableattr = ref "class=\"typetable\"@ @" in
+          let tableattr = ref "class=\"odocwiki_typetable\"@ @" in
           let print_one constr =
             bs b "|@@";
             bs b !tableattr;
             tableattr := "";
-            bs b "class=\"lefttop\"@@";
+            bs b "class=\"lefttop\"@@"; (* FIXME *)
             bs b (self#keyword "{{{|}}}");
             bs b "|@@class=\"lefttop\"@@";
             bs b (self#constructor constr.vc_name);
@@ -1040,11 +1040,11 @@ class wiki =
              match constr.vc_text with
                None -> ()
              | Some t ->
-                 bs b "|@@class=\"typefieldcomment lefttop startcom\"@@";
+                 bs b "|@@class=\"odocwiki_typefieldcomment lefttop startcom\"@@"; (* FIXME *)
                  bs b "{{{(*}}}";
-                 bs b "|@@class=\"typefieldcomment lefttop\"@@";
+                 bs b "|@@class=\"odocwiki_typefieldcomment lefttop\"@@";
                  self#html_of_text b t;
-                 bs b "|@@class=\"typefieldcomment leftbottom endcom\"@@";
+                 bs b "|@@class=\"odocwiki_typefieldcomment leftbottom endcom\"@@";
                  bs b "{{{*)}}}";
             );
             bs b "|"
@@ -1056,12 +1056,12 @@ class wiki =
           bs b " = ";
           if priv then bs b "private " ;
           bs b "{ ";
-          let tableattr = ref "class=\"typetable\"@ @" in
+          let tableattr = ref "class=\"odocwiki_typetable\"@ @" in
           let print_one r =
             bs b "|@@";
             bs b !tableattr;
             tableattr := "";
-            bs b "class=\"lefttop\"@@";
+            bs b "class=\"lefttop\"@@"; (* FIXME *)
             bs b "{{{   }}}";
             bs b "|@@class=\"lefttop\"@@";
             if r.rf_mutable then bs b (self#keyword "mutable ") ;
@@ -1072,11 +1072,11 @@ class wiki =
              match r.rf_text with
                None -> ()
              | Some t ->
-                 bs b "|@@class=\"typefieldcomment lefttop startcom\"@@";
+                 bs b "|@@class=\"odocwiki_typefieldcomment lefttop startcom\"@@"; (* FIXME *)
                  bs b "{{{(*}}}";
-                 bs b "|@@class=\"typefieldcomment lefttop\"@@";
+                 bs b "|@@class=\"odocwiki_typefieldcomment lefttop\"@@";
                  self#html_of_text b t;
-                 bs b "|@@class=\"typefieldcomment leftbottom endcom\"@@";
+                 bs b "|@@class=\"odocwiki_typefieldcomment leftbottom endcom\"@@";
                  bs b "{{{*)}}}";
             );
             bs b "|"
@@ -1092,7 +1092,7 @@ class wiki =
     (** Print html code for a class attribute. *)
     method html_of_attribute b a =
       let module_name = Name.father (Name.father a.att_value.val_name) in
-      bs b "<<div class=\"code\"|" ;
+      bs b "<<pre class=\"ocsforge_color\"|" ;
       bp b "<<span id=\"%s\"|" (Naming.attribute_target a);
       bs b (self#keyword "val");
       bs b " ";
@@ -1126,7 +1126,7 @@ class wiki =
     (** Print html code for a class method. *)
     method html_of_method b m =
       let module_name = Name.father (Name.father m.met_value.val_name) in
-      bs b "<<div class=\"code\"|";
+      bs b "<<pre class=\"ocsforge_color\"|";
       (* html mark *)
       bp b "<<span id=\"%s\"|" (Naming.method_target m);
      bs b ((self#keyword "method")^" ");
@@ -1191,28 +1191,28 @@ class wiki =
       match l with
         [] -> ()
       | _ ->
-          bs b "<<div class=\"param_info\"|";
+          bs b "<<div class=\"odocwiki_param_info\"|";
 (*          bs b "<table border=\"0\" cellpadding=\"3\" width=\"100%\">\n";
           bs b "<tr>\n<td align=\"left\" valign=\"top\" width=\"1%\">"; *)
-          bs b "|@@class=\"paramlist\"@ @class=\"lefttop one\">";
+          bs b "|@@class=\"odocwiki_paramlist\"@ @class=\"lefttop one\">"; (* FIXME *)
           bs b "**";
           bs b Odoc_messages.parameters;
           bs b ": **|" ;
 (*VVV Warning: table in table now supported for now 20101201 *)
           bs b "<<div|";
-          let tableattr = ref "class=\"paramstable\"@ @" in
+          let tableattr = ref "class=\"odocwiki_paramstable\"@ @" in
           let print_one p =
             bs b "|@@";
             bs b !tableattr;
             tableattr := "";
-            bs b "class=\"lefttop fifteen code\"@@";
+            bs b "class=\"lefttop fifteen code\"@@"; (* FIXME *)
             bs b
               (
                match Parameter.complete_name p with
                  "" -> "?"
                | s -> s
               );
-            bs b "|@@class=\"centertop\"@@:|";
+            bs b "|@@class=\"centertop\"@@:|"; (* FIXME *)
             self#html_of_type_expr b m_name (Parameter.typ p);
             bs b "\\\\";
             self#html_of_parameter_description b p;
@@ -1232,7 +1232,7 @@ class wiki =
           l
       in
       let f p =
-        bs b "<<div class=\"param_info\"|<<span class=\"code code\"|";
+        bs b "<<div class=\"odocwiki_param_info\"|<<span class=\"code\"|"; (* FIXME *)
         bs b (Parameter.complete_name p);
         bs b ">> : " ;
         self#html_of_parameter_description b p;
@@ -1250,16 +1250,16 @@ class wiki =
           bs b "<tr>\n";
           bs b "<td align=\"left\" valign=\"top\" width=\"1%%\">**";
 *)
-          bs b "<<div class=\"module_param_list\" | ";
-	  bp b "<<span class=\"param_title\" |%s :>>" Odoc_messages.parameters;
+          bs b "<<div class=\"odocwiki_module_param_list\" | ";
+	  bp b "<<span class=\"odocwiki_param_title\" |%s :>>" Odoc_messages.parameters;
           bs b "<<div|\n";
-          let tableattr = ref "class=\"paramstable\"@ @" in
+          let tableattr = ref "class=\"odocwiki_paramstable\"@ @" in
           List.iter
             (fun (p, desc_opt) ->
               bs b "|@@";
               bs b !tableattr;
               tableattr := "";
-              bs b "class=\"centertop fifteen code\"@@{{{";
+              bs b "class=\"centertop fifteen code\"@@{{{"; (* FIXME *)
               bs b p.mp_name;
               bs b "}}}" ;
               bs b "|@@class=\"centertop\"@@:|";
@@ -1279,7 +1279,7 @@ class wiki =
     (** Print html code for a module. *)
     method html_of_module b ?(info=true) ?(complete=true) ?(with_link=true) m =
       let father = Name.father m.m_name in
-      bs b "<<div class=\"code\"|";
+      bs b "<<pre class=\"ocsforge_color\"|";
       bs b ((self#keyword "module")^" ");
       (
        if with_link then
@@ -1309,7 +1309,7 @@ class wiki =
     (** Print html code for a module type. *)
     method html_of_modtype b ?(info=true) ?(complete=true) ?(with_link=true) mt =
       let father = Name.father mt.mt_name in
-      bs b "<<div class=\"code\"|";
+      bs b "<<pre class=\"ocsforge_color\"|";
       bs b ((self#keyword "module type")^" ");
       (
        if with_link then
@@ -1337,7 +1337,7 @@ class wiki =
 
     (** Print html code for an included module. *)
     method html_of_included_module b im =
-      bs b "<<div class=\"code\"|";
+      bs b "<<pre class=\"ocsforge_color\"|";
       bs b ((self#keyword "include")^" ");
       (
        match im.im_module with
@@ -1393,7 +1393,7 @@ class wiki =
                self#html_of_class_type_param_expr_list b father l;
                bs b " "
           );
-          bs b "<<span class=\"code type\"|";
+          bs b "<<span class=\"odocwiki_type\"|";
           bs b (self#create_fully_qualified_idents_links father cco.cco_name);
           bs b ">>"
 
@@ -1414,7 +1414,7 @@ class wiki =
                self#html_of_class_type_param_expr_list b father l;
                bs b " "
           );
-          bs b "<<span class=\"code type\"|";
+          bs b "<<span class=\"odocwiki_type\"|";
           bs b (self#create_fully_qualified_idents_links father cta.cta_name);
           bs b ">>"
 
@@ -1440,7 +1440,7 @@ class wiki =
     method html_of_class b ?(complete=true) ?(with_link=true) c =
       let father = Name.father c.cl_name in
       Odoc_info.reset_type_names ();
-      bs b "<<div class=\"code\"|";
+      bs b "<<pre class=\"ocsforge_color\"|";
       (* we add a html id, the same as for a type so we can
          go directly here when the class name is used as a type name *)
       bp b "<<span name=\"%s\"|"
@@ -1484,7 +1484,7 @@ class wiki =
     method html_of_class_type b ?(complete=true) ?(with_link=true) ct =
       Odoc_info.reset_type_names ();
       let father = Name.father ct.clt_name in
-      bs b "<<div class=\"code\"|";
+      bs b "<<pre class=\"ocsforge_color\"|";
       (* we add a html id, the same as for a type so we can
          go directly here when the class type name is used as a type name *)
       bp b "<<span id=\"%s\"|"
@@ -1530,7 +1530,7 @@ class wiki =
         (* if we have a c_opt = Some class then we take its information
            because we are sure the name is complete. *)
         let new_v =
-          match cct_opt with
+          match cct_opt with (* FIXME *)
             None -> "<<a_api"^get_subproject ()^" class=\"dag\" | class "^name^" >>"
           | Some (Cl c) -> "<<a_api"^get_subproject ()^" class=\"dag\" | class "^c.cl_name^" >>"
           | Some (Cltype (ct, _)) ->
@@ -1651,7 +1651,7 @@ class wiki =
                   'A'..'Z' as c -> String.make 1 c
                 | _ -> ""
               in
-              bs b "|@@ @class=\"alignleft\"@@\\\\";
+              bs b "|@@ @style=\"tet-align: left;\"@@\\\\";
               bs b s ;
               bs b "|\n" ;
               List.iter f_ele l

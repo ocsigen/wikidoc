@@ -4,7 +4,9 @@ SRCROOT     := /opt/ocsigen/src
 CAMLDOC     ?= ocamlfind ocamldoc
 CAMLDUCEDOC ?= ocamlducefind ocamldoc
 
-all: lwt js_of_ocaml tyxml server eliom oclosure
+all: customdoc
+
+api: lwt js_of_ocaml tyxml server eliom oclosure
 
 install: lwt.install js_of_ocaml.install tyxml.install \
 	 server.install eliom.install oclosure.install
