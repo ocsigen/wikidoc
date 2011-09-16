@@ -1,5 +1,6 @@
+-include Makefile.local
 
-SRCROOT     := /opt/ocsigen/src
+SRCROOT     ?= /opt/ocsigen/src
 
 CAMLDOC     ?= ocamlfind ocamldoc
 CAMLDUCEDOC ?= ocamlducefind ocamldoc
@@ -30,6 +31,7 @@ lwt: customdoc
 	rm -rf docwiki_$@
 	mkdir -p docwiki_$@
 	$(CAMLDOC) -g src/odoc_wiki.cmo -d docwiki_$@ \
+          -pp "camlp4o ${LWT_DIR}/_build/syntax/pa_optcomp.cmo -let windows=false" \
 	  -intro ${LWT_DIR}/apiref-intro -colorize-code \
 	  ${LWTDOCINCLUDES} $(LWT_DOC)
 
