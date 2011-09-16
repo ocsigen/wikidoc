@@ -21,6 +21,36 @@ open Exception
 open Class
 open Module
 
+let remove_spaces s beg endd =
+  let rec find_not_space s i step =
+    if (i > endd) || (beg > i)
+    then i
+    else
+      if s.[i] = ' '
+      then find_not_space s (i+step) step
+      else i
+  in
+  let first = find_not_space s beg 1 in
+  let last = find_not_space s endd (-1) in
+  if last >= first
+  then String.sub s first (1+ last - first)
+  else ""
+
+let rec split char s =
+  let longueur = String.length s in
+  let rec aux deb =
+    if deb >= longueur
+    then []
+    else
+      try
+        let firstsep = String.index_from s deb char in
+        (remove_spaces s deb (firstsep-1))::
+          (aux (firstsep+1))
+      with Not_found -> [remove_spaces s deb (longueur-1)]
+  in
+  aux 0
+
+
 let subproject : string option ref = ref None
 let _ = Odoc_args.add_option ("-subproject",
 			      Arg.String (fun s -> subproject := Some s),
@@ -668,6 +698,9 @@ class wiki =
    (** Return html code with the given string in the keyword style.*)
     method keyword s =
       "<<span class=\"ocsforge_color_keyword\"|"^s^">>"
+    method delimiter s =
+      "<<span class=\"ocsforge_color_delimiter\"|"^s^">>"
+
 
     (** Return html code with the given string in the constructor style. *)
     method constructor s = "<<span class=\"ocsforge_color_uid\"|"^s^">>"
@@ -686,6 +719,17 @@ class wiki =
           incr Odoc_info.errors ;
           prerr_endline s
 
+    method colorize_fully_qualified_idents name =
+      String.concat "<<span class=\"ocsforge_color_delimiter\"| . >>"
+	(List.map
+	   (fun n ->
+	     if 'A' < n.[0] && n.[0] < 'Z' then
+	       "<<span class=\"ocsforge_color_uid\"|"^n^">>"
+	     else
+	       "<<span class=\"ocsforge_color_lid\"|"^n^">>")
+	   (split '.' name))
+
+
     (** Take a string and return the string where fully qualified
        type (or class or class type) idents
        have been replaced by links to the type referenced by the ident.*)
@@ -703,14 +747,19 @@ class wiki =
         else if StringSet.mem match_s known_classes_names then
 	  "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | class type " ^ match_s ^ " >>"
         else
-          s_final
+	  self#colorize_fully_qualified_idents s_final
       in
       let s2 = Str.global_substitute
           (Str.regexp "\\([A-Z]\\([a-zA-Z_'0-9]\\)*\\.\\)+\\([a-z][a-zA-Z_'0-9]*\\)")
           f
 	  s
       in
-      s2
+      let s3 = Str.global_substitute
+	  (Str.regexp "\\((\\|)\\|->\\)")
+	  (fun str_t -> "<<span class=\"ocsforge_color_delimiter\"| "^Str.matched_string str_t^" >>")
+          s2
+      in
+      s3
 
     (** Take a string and return the string where fully qualified module idents
        have been replaced by links to the module referenced by the ident.*)
@@ -726,7 +775,7 @@ class wiki =
         if StringSet.mem match_s known_modules_names then
 	  "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | module " ^ match_s ^ " >>"
         else
-          s_final
+          "<<span class=\"ocsforge_color_uid\"|"^s_final^">>"
       in
       let s2 = Str.global_substitute
           (Str.regexp "\\([A-Z]\\([a-zA-Z_'0-9]\\)*\\.\\)+\\([A-Z][a-zA-Z_'0-9]*\\)")
@@ -782,7 +831,7 @@ class wiki =
     method html_of_module_kind b father ?modu kind  =
       match kind with
         Module_struct eles ->
-          self#html_of_text b [Code "sig"];
+          bs b (self#keyword "sig");
           (
            match modu with
              None ->
@@ -792,7 +841,7 @@ class wiki =
            | Some m ->
 	       bp b "<<a_api%s text=\"..\" | module %s >>" (get_subproject ()) m.m_name
           );
-          self#html_of_text b [Code "end"]
+	  bs b (self#keyword "end")
       | Module_alias a ->
           bs b "<<span class=\"odocwiki_type\"|";
           bs b (self#create_fully_qualified_module_idents_links father a.ma_name);
@@ -817,9 +866,9 @@ class wiki =
           (* TODO: l'application n'est pas correcte dans un .mli.
              Que faire ? -> afficher le module_type du typedtree  *)
           self#html_of_module_kind b father k1;
-          self#html_of_text b [Code "("];
+          bs b (self#delimiter "(");
           self#html_of_module_kind b father k2;
-          self#html_of_text b [Code ")"]
+          bs b (self#delimiter ")")
       | Module_with (k, s) ->
           (* TODO: à modifier quand Module_with sera plus détaillé *)
 	  let s2 = self#create_fully_qualified_module_idents_links father s in
@@ -855,7 +904,7 @@ class wiki =
         else
           "functor ", "-> "
       in
-      self#html_of_text b
+      self#html_of_text b (* FIXME *)
         [
           Code (s_functor^"(");
           Code p.mp_name ;
@@ -889,7 +938,7 @@ class wiki =
     method html_of_module_type_kind b father ?modu ?mt kind =
       match kind with
         Module_type_struct eles ->
-          self#html_of_text b [Code "sig"];
+          bs b (self#keyword "sig");
           (
            match mt with
              None ->
@@ -905,7 +954,7 @@ class wiki =
            | Some mt ->
 	       bp b "<<a_api%s text=\"..\" | module type %s >>" (get_subproject ()) mt.mt_name
           );
-          self#html_of_text b [Code "end"]
+          bs b (self#keyword "end")
       | Module_type_functor (p, k) ->
           self#html_of_module_parameter b father p;
           self#html_of_module_type_kind b father ?modu ?mt k;
@@ -956,7 +1005,7 @@ class wiki =
            self#output_code v.val_name (Filename.concat !Args.target_dir file) c;
 	   bp b "<<a_api_code%s | value %s >>" (get_subproject ()) v.val_name
       );
-      bs b " : ";
+      bs b (self#delimiter " : ");
       self#html_of_type_expr b (Name.father v.val_name) v.val_type;
       bs b ">>";
       self#html_of_info b v.val_info;
@@ -986,7 +1035,7 @@ class wiki =
        match e.ex_alias with
          None -> ()
        | Some ea ->
-           bs b " = ";
+           bs b (self#delimiter " = ");
            (
             match ea.ea_ex with
               None -> bs b ea.ea_name
@@ -1010,7 +1059,7 @@ class wiki =
        match t.ty_manifest with
          None -> ()
        | Some typ ->
-           bs b " = ";
+           bs b (self#delimiter " = ");
            if priv then bs b "private ";
            self#html_of_type_expr b father typ;
            bs b " "
@@ -1018,7 +1067,7 @@ class wiki =
       (match t.ty_kind with
         Type_abstract -> ()
       | Type_variant l ->
-          bs b " = ";
+          bs b (self#delimiter " = ");
           if priv then bs b "private ";
           let tableattr = ref "class=\"odocwiki_typetable\"@ @" in
           let print_one constr =
@@ -1053,7 +1102,7 @@ class wiki =
           Odoc_html.print_concat b "\n" print_one l
 
       | Type_record l ->
-          bs b " = ";
+          bs b (self#delimiter " = ");
           if priv then bs b "private " ;
           bs b "{ ";
           let tableattr = ref "class=\"odocwiki_typetable\"@ @" in
@@ -1118,7 +1167,7 @@ class wiki =
 	     (Name.simple a.att_value.val_name) a.att_value.val_name;
       );
       bs b ">>";
-      bs b " : ";
+      bs b (self#delimiter " : ");
       self#html_of_type_expr b module_name a.att_value.val_type;
       bs b ">>";
       self#html_of_info b a.att_value.val_info
@@ -1144,7 +1193,7 @@ class wiki =
 	     (Name.simple m.met_value.val_name) m.met_value.val_name;
       );
       bs b ">>";
-      bs b " : ";
+      bs b (self#delimiter " : ");
       self#html_of_type_expr b module_name m.met_value.val_type;
       bs b ">>";
       self#html_of_info b m.met_value.val_info;
@@ -1286,13 +1335,13 @@ class wiki =
 	 bp b "<<a_api%s text=\"%s\" | module %s >>"
 	   (get_subproject ()) (Name.simple m.m_name) m.m_name
        else
-         bs b (Name.simple m.m_name)
+         bs b (self#constructor (Name.simple m.m_name))
       );
       (
        match m.m_kind with
          Module_functor _ when !Odoc_info.Args.html_short_functors  ->
            ()
-       | _ -> bs b ": "
+       | _ -> bs b (self#delimiter ":")
       );
       self#html_of_module_kind b father ~modu: m m.m_kind;
       bs b ">>";
@@ -1321,7 +1370,7 @@ class wiki =
       (match mt.mt_kind with
         None -> ()
       | Some k ->
-          bs b " = ";
+          bs b (self#delimiter " = ");
           self#html_of_module_type_kind b father ~mt k
       );
       bs b ">>";
@@ -1364,7 +1413,7 @@ class wiki =
     method html_of_class_kind b father ?cl kind =
       match kind with
         Class_structure (inh, eles) ->
-          self#html_of_text b [Code "object"];
+          bs b (self#keyword "object");
           (
            match cl with
              None ->
@@ -1379,7 +1428,7 @@ class wiki =
            | Some cl ->
 	       bp b "<<a_api%s text=\"..\" | class %s >>" (get_subproject ()) cl.cl_name
           );
-          self#html_of_text b [Code "end"]
+          bs b (self#keyword "end")
 
       | Class_apply capp ->
           (* TODO: afficher le type final à partir du typedtree *)
@@ -1398,11 +1447,11 @@ class wiki =
           bs b ">>"
 
       | Class_constraint (ck, ctk) ->
-          self#html_of_text b [Code "( "] ;
+          bs b (self#delimiter "(");
           self#html_of_class_kind b father ck;
-          self#html_of_text b [Code " : "] ;
+          bs b (self#delimiter ":");
           self#html_of_class_type_kind b father ctk;
-          self#html_of_text b [Code " )"]
+          bs b (self#delimiter ")")
 
     method html_of_class_type_kind b father ?ct kind =
       match kind with
@@ -1419,7 +1468,7 @@ class wiki =
           bs b ">>"
 
       | Class_signature (inh, eles) ->
-          self#html_of_text b [Code "object"];
+          bs b (self#keyword "object");
           (
            match ct with
              None ->
@@ -1434,7 +1483,7 @@ class wiki =
 	       bp b "<<a_api%s text=\"..\" | class type %s >>"
 		 (get_subproject ()) ct.clt_name
           );
-          self#html_of_text b [Code "end"]
+          bs b (self#keyword "end")
 
     (** Print html code for a class. *)
     method html_of_class b ?(complete=true) ?(with_link=true) c =
@@ -1469,7 +1518,7 @@ class wiki =
          bs b (Name.simple c.cl_name)
       );
       bs b ">>";
-      bs b " : " ;
+      bs b (self#delimiter " : ");
       self#html_of_class_parameter_list b father c ;
       self#html_of_class_kind b father ~cl: c c.cl_kind;
       bs b ">>" ;
@@ -1513,7 +1562,7 @@ class wiki =
         bs b (Name.simple ct.clt_name);
 
       bs b ">>";
-      bs b " = ";
+      bs b (self#delimiter " = ");
       self#html_of_class_type_kind b father ~ct ct.clt_kind;
       bs b ">>";
       (
