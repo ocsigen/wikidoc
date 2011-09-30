@@ -5,7 +5,7 @@ SRCROOT     ?= /opt/ocsigen/src
 CAMLDOC     ?= ocamlfind ocamldoc
 CAMLDUCEDOC ?= ocamlducefind ocamldoc
 
-all: customdoc
+all: customdoc customdocduce
 
 api: lwt js_of_ocaml tyxml server eliom oclosure
 
@@ -13,7 +13,9 @@ install: lwt.install js_of_ocaml.install tyxml.install \
 	 server.install eliom.install oclosure.install
 
 customdoc:
-	${MAKE} -C src
+	${MAKE} -C src customdoc
+customdocduce:
+	${MAKE} -C src customdocduce
 
 ####### WIKIDOC LWT #######
 
@@ -30,7 +32,7 @@ LWTDOCINCLUDES= ${addprefix -I ,$(LWTDOCINCLUDESDIR)} \
 lwt: customdoc
 	rm -rf docwiki_$@
 	mkdir -p docwiki_$@
-	$(CAMLDOC) -g src/odoc_wiki.cmo -d docwiki_$@ \
+	$(CAMLDOC) -g src/odoc_wiki.cma -d docwiki_$@ \
           -pp "camlp4o ${LWT_DIR}/_build/syntax/pa_optcomp.cmo -let windows=false" \
 	  -intro ${LWT_DIR}/apiref-intro -colorize-code \
 	  ${LWTDOCINCLUDES} $(LWT_DOC)
@@ -52,7 +54,7 @@ JS_OF_OCAML_DOC := ${addprefix ${JS_OF_OCAML_DIR}/,${DOC}}
 js_of_ocaml: customdoc
 	rm -rf docwiki_$@
 	mkdir -p docwiki_$@
-	$(CAMLDOC) -stars  -g src/odoc_wiki.cmo -d docwiki_$@ \
+	$(CAMLDOC) -stars  -g src/odoc_wiki.cma -d docwiki_$@ \
 	-intro ${JS_OF_OCAML_DIR}/doc/api-index \
 	-I ${JS_OF_OCAML_DIR}/lib -I ${JS_OF_OCAML_DIR}/lib/deriving_json \
 	-package lwt ${JS_OF_OCAML_DOC}
@@ -71,10 +73,10 @@ OCAMLDUCE := YES
 TYXML_DOC := ${addprefix ${TYXML_DIR}/,${DOC}}
 
 .PHONY: tyxml
-tyxml: customdoc
+tyxml: customdocduce
 	rm -rf docwiki_$@
 	mkdir -p docwiki_$@
-	$(CAMLDUCEDOC) -stars -g src/odoc_duce_wiki.cmo -d docwiki_$@ \
+	$(CAMLDUCEDOC) -stars -g src/odoc_duce_wiki.cma -d docwiki_$@ \
 	  -intro ${TYXML_DIR}/doc/indexdoc -colorize-code \
 	  -package ocamlduce -I ${TYXML_DIR}/lib ${TYXML_DOC}
 
@@ -95,7 +97,7 @@ server: customdoc
 	rm -rf docwiki_$@
 	mkdir -p docwiki_$@
 	OCAMLPATH=${SERVER_DIR}/src/files:${OCAMLPATH} \
-	  $(CAMLDOC) -g src/odoc_wiki.cmo \
+	  $(CAMLDOC) -g src/odoc_wiki.cma \
 	  -d docwiki_server -intro ${SERVER_DIR}/doc/indexdoc \
 	  -package ocsigenserver $(SERVER_DOC)
 
@@ -155,19 +157,19 @@ ELIOM_CLIENT_INC := \
 	    ocamlfind query -i-format -r eliom.client)
 
 .PHONY:eliom
-eliom: customdoc \
+eliom: customdocduce \
 	       ${TMP}/server ${ELIOM_SERVER_DOC} \
 	       ${TMP}/client ${ELIOM_CLIENT_DOC}
 	rm -rf docwiki_$@/server docwiki_$@/client
 	mkdir -p docwiki_$@/server docwiki_$@/client
 	 ## Server
-	ocamlducedoc -g src/odoc_duce_wiki.cmo \
+	ocamlducedoc -g src/odoc_duce_wiki.cma \
           -d docwiki_eliom/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
           -colorize-code -subproject server \
           ${ELIOM_SERVER_INC} -I ${ELIOM_DIR}/src/server/extensions \
          $(ELIOM_SERVER_DOC)
 	 ## Client
-	ocamldoc -g src/odoc_wiki.cmo \
+	ocamldoc -g src/odoc_wiki.cma \
           -d docwiki_eliom/client -intro ${ELIOM_DIR}/doc/client/indexdoc \
           -colorize-code -subproject client \
 	  ${ELIOM_CLIENT_INC} $(ELIOM_CLIENT_DOC)
@@ -176,8 +178,8 @@ eliom: customdoc \
 ELIOM_VERSION ?= dev
 eliom.install:
 	${call docwiki_install,docwiki_eliom,eliom,${ELIOM_VERSION}}
-	# cat ${ELIOM_DIR}/doc/index.wiki | \
-	#    ssh ocsigen.org "sudo sh -c 'cat > /var/www/apiwiki/eliom/${ELIOM_VERSION}/index.wiki'"
+	sudo -u www-data cp ${ELIOM_DIR}/doc/index.wiki \
+	    /var/www/data/apiwiki/eliom/${ELIOM_VERSION}/index.wiki
 
 ######## WIKIDOC OCSIGEN 1.3 ########
 
@@ -192,7 +194,7 @@ eliom.install:
 # 	rm -rf docwiki_$@
 # 	mkdir -p docwiki_$@
 # 	OCAMLPATH=${OCSIGEN13_DIR}/files:${OCAMLPATH} \
-# 	  $(CAMLDUCEDOC) -g src/odoc_duce_wiki.cmo \
+# 	  $(CAMLDUCEDOC) -g src/odoc_duce_wiki.cma \
 # 	    -d docwiki_$@ -intro ${OCSIGEN13_DIR}/files/indexdoc -colorize-code \
 # 	    ${DOC13INCLUDES} ${addprefix ${OCSIGEN13_DIR}/,$(DOC13)}
 
@@ -213,7 +215,7 @@ eliom.install:
 # 	rm -rf docwiki_$@
 # 	mkdir -p docwiki_$@
 # 	OCAMLPATH=${OCSIGEN12_DIR}:${OCAMLPATH} \
-# 	  $(CAMLDUCEDOC) -g src/odoc_duce_wiki.cmo \
+# 	  $(CAMLDUCEDOC) -g src/odoc_duce_wiki.cma \
 # 	    -d docwiki_$@ -intro ${OCSIGEN12_DIR}/files/indexdoc -colorize-code \
 # 	    ${DOC12INCLUDES} ${addprefix ${OCSIGEN12_DIR}/,$(DOC10)}
 
@@ -238,7 +240,7 @@ OCLOSURE_DOC := ${OCLOSURE_DIR}/goog/goog.mli
 oclosure: customdoc
 	rm -rf docwiki_$@
 	mkdir -p docwiki_$@
-	$(CAMLDOC) -stars  -g src/odoc_wiki.cmo -d docwiki_$@ \
+	$(CAMLDOC) -stars  -g src/odoc_wiki.cma -d docwiki_$@ \
 	-intro ${OCLOSURE_DIR}/doc/apiref-overview -colorize-code \
 	-pp "cpp -traditional-cpp" \
 	${OCLOSURE_INCLUDES} ${OCLOSURE_DOC}
@@ -255,16 +257,10 @@ clean:
 	-find -name \*~ -delete
 
 
-docwiki_install= \
-	@echo TODO
-
-        # ssh ocsigen.org -t "sudo rm -fr /var/www/apiwiki/$(2)/$(3)/"; \
-        # ssh ocsigen.org -t "sudo mkdir -p /var/www/apiwiki/$(2)/$(3)/"; \
-        # ssh ocsigen.org -t "sudo chown www-data:www-data /var/www/apiwiki/$(2)/$(3)/"; \
-        # ssh ocsigen.org -t "sudo chmod 775 /var/www/apiwiki/$(2)/$(3)"; \
-        # cd $(1) && tar cz . | \
-        #     ssh ocsigen.org "sudo sh -c 'cd /var/www/apiwiki/$(2)/$(3)/; tar xz'"; \
-        # ssh ocsigen.org -t \
-        #     "sudo find /var/www/apiwiki/$(2)/$(3)/ -name \*.wiki -exec chown www-data:www-data {} \;"
+docwiki_install=\
+	sudo -u www-data rm -rf /var/www/data/apiwiki/$(2)/$(3)/; \
+        sudo -u www-data mkdir -p /var/www/data/apiwiki/$(2)/$(3)/; \
+        sudo -u www-data chmod 775 /var/www/data/apiwiki/$(2)/$(3); \
+        sudo -u www-data cp -r $(1)/* /var/www/data/apiwiki/$(2)/$(3)/
 
 
