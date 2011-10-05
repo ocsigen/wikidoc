@@ -32,8 +32,10 @@ let raw_string_of_type_list ?(margin = default_margin) sep type_list =
     | Types.Tlink t2 | Types.Tsubst t2 -> need_parent t2
     | Types.Tconstr _ ->
         false
-    | Types.Tvar | Types.Tunivar | Types.Tobject _ | Types.Tpoly _
-    | Types.Tfield _ | Types.Tnil | Types.Tvariant _ | Types.Tpackage _ -> false
+    (* | Types.Tvar | Types.Tunivar | Types.Tobject _ | Types.Tpoly _ *)
+    (* | Types.Tfield _ | Types.Tnil | Types.Tvariant _ | Types.Tpackage _ *)
+    (* Text for ocamlduce *)
+    | _ -> false
   in
   let print_one_type variance t =
     Printtyp.mark_loops t;
@@ -116,10 +118,12 @@ let rec is_arrow_type t =
   match t.Types.desc with
     Types.Tarrow _ -> true
   | Types.Tlink t2 | Types.Tsubst t2 -> is_arrow_type t2
-  | Types.Ttuple _
-  | Types.Tconstr _
-  | Types.Tvar | Types.Tunivar | Types.Tobject _ | Types.Tpoly _
-  | Types.Tfield _ | Types.Tnil | Types.Tvariant _ | Types.Tpackage _ -> false
+  (* | Types.Ttuple _ *)
+  (* | Types.Tconstr _ *)
+  (* | Types.Tvar | Types.Tunivar | Types.Tobject _ | Types.Tpoly _ *)
+  (* | Types.Tfield _ | Types.Tnil | Types.Tvariant _ | Types.Tpackage _ *)
+  (* Text for ocamlduce *)
+  | _  -> false
 
 let string_of_class_params ?(margin = default_margin) c =
   let b = Buffer.create 256 in

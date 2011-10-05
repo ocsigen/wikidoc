@@ -1,0 +1,75 @@
+# define function: wikidir(project)
+# associates the wiki source's directory to a project name
+wikidir = \
+    $(if $(filter tutorial,$(1)),$(TUTORIAL_DIR)/src,\
+    $(if $(filter eliom,$(1)),$(ELIOM_DIR)/doc/manual-wiki,\
+    $(if $(filter js_of_ocaml,$(1)),$(JS_OF_OCAML_DIR)/doc/manual-wiki,\
+    $(if $(filter tyxml,$(1)),$(TYXML_DIR)/doc/manual-wiki,\
+    $(if $(filter lwt,$(1)),$(LWT_DIR)/manual,\
+    $(if $(filter macaque,$(1)),$(MACAQUE_DIR)/manual,\
+    $(if $(filter oclosure,$(1)),$(OCLOSURE_DIR)/doc/src,\
+    $(if $(filter server,$(1)),$(SERVER_DIR)/doc/manual-wiki,\
+     ))))))))
+
+# Projects with wiki manual:
+PROJECTS := tutorial eliom js_of_ocaml tyxml lwt macaque oclosure server
+
+###
+
+all::
+	${MAKE} -C src/latex_of_wiki
+
+src/latex_of_wiki/latex_of_wiki:
+	${MAKE} -C src/latex_of_wiki latex_of_wiki
+
+###
+
+# define function: target_name(project, wiki_dir/page.wiki)
+target_name = $(1)-$(patsubst %.wiki,%,$(notdir $(2)))
+# page_offset(project, wiki_dir/page.wiki)
+page_offset = \
+  ( grep $(call target_name,$(1),$(2)) .offsets | cut -d ' ' -f 2 ) || echo 0
+# page_offset(project, wiki_dir/page.wiki)
+compile_page = \
+  src/latex_of_wiki/latex_of_wiki $(shell $(call page_offset,$(1),${page})) \
+    < $(2) > tex/$(call target_name,$(1),$(2)).tex
+# compile_manual(project)
+compile_manual = \
+  $(foreach page,$(wildcard $(call wikidir,$(1))/*.wiki),\
+      $(call compile_page,$(1),${page});)
+
+.PHONY: texsrc
+texsrc: src/latex_of_wiki/latex_of_wiki tex/menu.tex
+	@$(foreach proj,${PROJECTS}, $(call compile_manual,${proj}))
+
+TEXINPUTS:=$(PWD)/files:${TEXINPUTS}
+export TEXINPUTS
+
+tex/ocsigen.pdf: tex/ocsigen.tex
+	cd $(dir $@); xelatex $(notdir $<) && xelatex $(notdir $<)
+
+tex/ocsigen.tex: files/header.tex tex/menu.tex files/footer.tex
+	mkdir -p tex
+	cat $^ > $@
+
+# compile_menu (project,target_file)
+compile_menu = \
+  test ! -f $(call wikidir,$(1))/menu.wiki || \
+  cat $(call wikidir,$(1))/menu.wiki | sed s%\\[\\[%\\[\\["$(1)"-% >> $(2)
+wiki/menu.wiki: $(foreach proj,${PROJECTS}, $(call wikidir,${proj})/menu.wiki)
+	mkdir -p wiki
+	echo "<<menu|" > $@
+	$(foreach proj,${PROJECTS}, $(call compile_menu,${proj},$@);)
+	echo ">>" >> $@
+
+tex/menu.tex: wiki/menu.wiki
+	mkdir -p tex
+	src/latex_of_wiki/latex_of_wiki < $< | \
+          sed s/input{js\\\\_of\\\\_ocaml-js\\\\_of\\\\_ocaml/input{js_of_ocaml-js_of_ocaml/ | \
+          sed s/input{js\\\\_of\\\\_ocaml-/input{js_of_ocaml-/ > $@
+	mv .latex_of_wiki_offsets .offsets
+
+###
+
+clean::
+	${MAKE} -C src/latex_of_wiki clean

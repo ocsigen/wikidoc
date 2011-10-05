@@ -1,0 +1,17 @@
+wikicreole.cmi:
+doclink.cmo: util.cmo
+doclink.cmx: util.cmx
+latex_of_wiki.cmo: wikicreole.cmi wiki_menulatex.cmo wiki_latex.cmo util.cmo \
+    doclink.cmo
+latex_of_wiki.cmx: wikicreole.cmx wiki_menulatex.cmx wiki_latex.cmx util.cmx \
+    doclink.cmx
+ocsigen_messages.cmo:
+ocsigen_messages.cmx:
+util.cmo:
+util.cmx:
+wiki_latex.cmo: wikicreole.cmi
+wiki_latex.cmx: wikicreole.cmx
+wiki_menulatex.cmo: wikicreole.cmi wiki_latex.cmo
+wiki_menulatex.cmx: wikicreole.cmx wiki_latex.cmx
+wikicreole.cmo: ocsigen_messages.cmo wikicreole.cmi
+wikicreole.cmx: ocsigen_messages.cmx wikicreole.cmi

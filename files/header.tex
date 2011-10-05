@@ -1,0 +1,93 @@
+\documentclass[11pt,a4]{book}
+\usepackage{fullpage}
+\usepackage{url}
+%\usepackage{ocamldoc}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{alltt}
+\usepackage{graphics}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{framed}
+
+%%%%%% xelatex:
+\usepackage{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\defaultfontfeatures{
+  Mapping=tex-text,
+  Scale=MatchLowercase,
+  Numbers=Uppercase,
+%  Ligatures={Common}
+  Ligatures={Common, Historical}
+}
+%\setmainfont{Constantia}
+%\setmainfont{URW Palladio L}
+%\setmainfont{Ikarius ADF Std}
+%\setmainfont{Gentium}
+
+%\setmainfont{Essays1743}
+%\setmainfont{Impossibilium BRK}
+
+%\setmainfont{Alfios}
+%\setmainfont{Cambria}
+%\setmainfont{Georgia}
+%\setmainfont{Linux Libertine O}
+%\setmainfont{Junicode}
+%\setmainfont{TeXGyreBonum}
+%\setmainfont{Tribun ADF Med Std}
+%\setmainfont{URW Bookman L}
+%rigolo : {Zoetrope BRK}
+
+
+%\setsansfont{Calibri}
+%\setmonofont{Consolas}
+
+%\ifxetex\newfontfamily\nfcode{Consolas}\else\def\nfcode{\sf}\fi
+%\ifxetex\newfontfamily\bfcode{Consolas Bold}\else\def\nfcode{\sf\bf}\fi
+
+%%%%% new commands and environments:
+\newenvironment{frameshaded}{%
+  \def\FrameCommand{\fboxsep=\FrameSep \fcolorbox{black}{shadecolor}}%
+  \MakeFramed {\FrameRestore}}%
+ {\endMakeFramed}
+\definecolor{shadecolor}{rgb}{0.85,0.85,0.85}
+\newenvironment{wip}{\includegraphics[width=1.5cm]{wip.png}\hfill\begin{minipage}{14cm}\vspace*{-1.5em}\begin{shaded}}{\end{shaded}\end{minipage}}
+\newcommand{\wipinline}[1]{\colorbox{shadecolor}{\bfseries\includegraphics[width=0.5cm]{wip.png}#1}}
+\newenvironment{concepts}{\hfill\begin{minipage}{10cm}\begin{frameshaded}\small{\bfseries Concepts}\\}{\end{frameshaded}\end{minipage}\vspace*{0.5em}}
+\newenvironment{encadre}{\begin{shaded}}{\end{shaded}}
+
+
+\newlength{\textlarg}
+\newcommand{\linethrough}[1]{%
+   \settowidth{\textlarg}{#1}
+   #1\hspace{-\textlarg}\rule[0.5ex]{\textlarg}{0.5pt}}
+
+
+\lstset{
+  language=[Objective]Caml,
+  extendedchars,
+  keywordstyle=\bfseries,%\underbar,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  basicstyle=\ttfamily,%\smaller,
+  frame=l,
+  framerule=1.5mm,
+  xleftmargin=6mm,
+  framesep=4mm,
+  rulecolor=\color{lightgray},
+  morekeywords={initializer,object},
+  %moredelim=[is][\ttfamily\underbar]{\%}{\%}%,
+  moredelim=*[s][\itshape]{(*}{*)},
+  moredelim=[is][\textcolor{darkgray}]{§}{§},
+  %mathescape=true, % echappement en mode math avec des $
+  escapechar=°
+% échappement LaTeX
+}
+
+\title{The Ocsigen Book}
+
+\begin{document}
+\maketitle
+\tableofcontents
