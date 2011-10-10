@@ -1,5 +1,5 @@
 
-OCAMLDUCE ?= YES
+OCAMLDUCE ?= NO
 
 all::
 	${MAKE} -C src/odoc_wiki
@@ -69,7 +69,7 @@ TYXML_DOC := ${addprefix ${TYXML_DIR}/,${DOC}}
 tyxml: src/odoc_wiki/odoc_duce_wiki.cma
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDUCEDOC} -stars -g src/odoc_duce_wiki.cma -d wiki/odoc-$@ \
+	${OCAMLDUCEDOC} -stars -g src/odoc_wiki/odoc_duce_wiki.cma -d wiki/odoc-$@ \
 	  -intro ${TYXML_DIR}/doc/indexdoc -colorize-code \
 	  -package ocamlduce -I ${TYXML_DIR}/lib ${TYXML_DOC}
 
@@ -151,7 +151,7 @@ eliom: src/odoc_wiki/odoc_duce_wiki.cma \
 	rm -rf wiki/odoc-$@/server wiki/odoc-$@/client
 	mkdir -p wiki/odoc-$@/server wiki/odoc-$@/client
 	 ## Server
-	ocamlducedoc -g src/odoc_duce_wiki.cma \
+	ocamlducedoc -g src/odoc_wiki/odoc_duce_wiki.cma \
           -d odoc_wiki/eliom/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
           -colorize-code -subproject server \
           ${ELIOM_SERVER_INC} -I ${ELIOM_DIR}/src/server/extensions \
@@ -182,7 +182,7 @@ eliom.install:
 # 	rm -rf wiki/odoc-$@
 # 	mkdir -p wiki/odoc-$@
 # 	OCAMLPATH=${OCSIGEN13_DIR}/files:${OCAMLPATH} \
-# 	  ${OCAMLDUCEDOC} -g src/odoc_duce_wiki.cma \
+# 	  ${OCAMLDUCEDOC} -g src/odoc_wiki/odoc_duce_wiki.cma \
 # 	    -d wiki/odoc-$@ -intro ${OCSIGEN13_DIR}/files/indexdoc -colorize-code \
 # 	    ${DOC13INCLUDES} ${addprefix ${OCSIGEN13_DIR}/,${DOC13}}
 
@@ -203,7 +203,7 @@ eliom.install:
 # 	rm -rf wiki/odoc-$@
 # 	mkdir -p wiki/odoc-$@
 # 	OCAMLPATH=${OCSIGEN12_DIR}:${OCAMLPATH} \
-# 	  ${OCAMLDUCEDOC} -g src/odoc_duce_wiki.cma \
+# 	  ${OCAMLDUCEDOC} -g src/odoc_wiki/odoc_duce_wiki.cma \
 # 	    -d wiki/odoc-$@ -intro ${OCSIGEN12_DIR}/files/indexdoc -colorize-code \
 # 	    ${DOC12INCLUDES} ${addprefix ${OCSIGEN12_DIR}/,${DOC10}}
 

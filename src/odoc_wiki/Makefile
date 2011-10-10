@@ -33,7 +33,7 @@ all:: byte opt
 byte:: odoc_wiki.cma
 opt:: odoc_wiki.cmxs
 
-OCAMLDUCE ?= YES
+OCAMLDUCE ?= NO
 
 ifeq "${OCAMLDUCE}" "YES"
 byte:: odoc_duce_wiki.cma
