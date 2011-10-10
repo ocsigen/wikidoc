@@ -2,6 +2,22 @@
 -include ../../Makefile.local
 include ../../Makefile.config
 
+OCAMLFIND     ?= ocamlfind
+OCAMLDUCEFIND ?= ocamlducefind
+
+OCAMLDOC     ?= ${OCAMLFIND} ocamldoc
+OCAMLDUCEDOC ?= ${OCAMLDUCEFIND} ocamldoc
+
+OCAMLC       ?= ${OCAMLFIND} ocamlc
+OCAMLDUCEC   ?= ${OCAMLDUCEFIND} ocamlc
+OCAMLOPT     ?= ${OCAMLFIND} ocamlopt
+OCAMLDUCEOPT ?= ${OCAMLDUCEFIND} ocamlopt
+OCAMLDEP     ?= ${OCAMLFIND} ocamldep
+OCAMLDUCEDEP ?= ${OCAMLDUCEFIND} ocamldep
+OCAMLLEX     ?= ocamllex
+
+##
+
 OBJS := util.cmo \
         ocsigen_messages.cmo wikicreole.cmo \
 	wiki_latex.cmo wiki_menulatex.cmo \

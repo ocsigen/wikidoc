@@ -1,4 +1,6 @@
 
+OCAMLDUCE ?= YES
+
 all::
 	${MAKE} -C src/odoc_wiki
 

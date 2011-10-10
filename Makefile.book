@@ -12,7 +12,7 @@ wikidir = \
      ))))))))
 
 # Projects with wiki manual:
-PROJECTS := tutorial eliom js_of_ocaml tyxml lwt macaque oclosure server
+PROJECTS ?= tutorial eliom js_of_ocaml tyxml lwt macaque oclosure server
 
 ###
 
@@ -45,7 +45,7 @@ texsrc: src/latex_of_wiki/latex_of_wiki tex/menu.tex
 TEXINPUTS:=$(PWD)/files:${TEXINPUTS}
 export TEXINPUTS
 
-tex/ocsigen.pdf: tex/ocsigen.tex
+tex/ocsigen.pdf: tex/ocsigen.tex $(wildcard tex/*.tex)
 	cd $(dir $@); xelatex $(notdir $<) && xelatex $(notdir $<)
 
 tex/ocsigen.tex: files/header.tex tex/menu.tex files/footer.tex

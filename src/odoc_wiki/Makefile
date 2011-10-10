@@ -2,10 +2,38 @@
 -include ../../Makefile.local
 include ../../Makefile.config
 
+OCAMLFIND     ?= ocamlfind
+OCAMLDUCEFIND ?= ocamlducefind
+
+OCAMLDOC     ?= ${OCAMLFIND} ocamldoc
+OCAMLDUCEDOC ?= ${OCAMLDUCEFIND} ocamldoc
+
+OCAMLC       ?= ${OCAMLFIND} ocamlc
+OCAMLDUCEC   ?= ${OCAMLDUCEFIND} ocamlc
+OCAMLOPT     ?= ${OCAMLFIND} ocamlopt
+OCAMLDUCEOPT ?= ${OCAMLDUCEFIND} ocamlopt
+OCAMLDEP     ?= ${OCAMLFIND} ocamldep
+OCAMLDUCEDEP ?= ${OCAMLDUCEFIND} ocamldep
+OCAMLLEX     ?= ocamllex
+
+OCAMLDOCPATH ?= $(shell ${OCAMLFIND} printconf stdlib)/ocamldoc
+COMPILERLIBSPARSING ?= \
+	-I $(shell ${OCAMLFIND} printconf stdlib)/compiler-libs/parsing \
+	-I $(shell ${OCAMLFIND} printconf stdlib)/compiler-libs/typing
+
+OCAMLDUCEDOCPATH ?= $(shell ${OCAMLDUCEFIND} printconf stdlib)/ocamlduce/ocamldoc
+COMPILERDUCELIBSPARSING ?= \
+	-I $(shell ${OCAMLFIND} printconf stdlib)/ocamlduce/compiler-libs/parsing \
+	-I $(shell ${OCAMLFIND} printconf stdlib)/ocamlduce/compiler-libs/typing
+
+##
+
 all:: byte opt
 
 byte:: odoc_wiki.cma
 opt:: odoc_wiki.cmxs
+
+OCAMLDUCE ?= YES
 
 ifeq "${OCAMLDUCE}" "YES"
 byte:: odoc_duce_wiki.cma
