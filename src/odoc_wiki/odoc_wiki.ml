@@ -51,7 +51,8 @@ let rec split char s =
   aux 0
 
 
-let subproject : string option ref = ref None
+let subproject =
+  ref (try Some (Sys.getenv "ODOC_WIKI_SUBPROJECT") with Not_found -> None)
 let _ = Odoc_args.add_option ("-subproject",
 			      Arg.String (fun s -> subproject := Some s),
                               "Add the subproject parameter to the generated <<a_api ...>>")

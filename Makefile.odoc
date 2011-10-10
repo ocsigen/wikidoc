@@ -1,5 +1,11 @@
 
-OCAMLDUCE ?= NO
+ODOC_WIKI := src/odoc_wiki/odoc_wiki.cma
+
+ifeq "${OCAMLDUCE}" "YES"
+ODOC_DUCE_WIKI := src/odoc_wiki/odoc_duce_wiki.cma
+else
+ODOC_DUCE_WIKI := ${ODOC_WIKI}
+endif
 
 all::
 	${MAKE} -C src/odoc_wiki
@@ -25,17 +31,17 @@ LWTDOCINCLUDES= ${addprefix -I ,${LWTDOCINCLUDESDIR}} \
 	-package react,ssl,text
 
 .PHONY: lwt
-lwt: src/odoc_wiki/odoc_wiki.cma
+lwt: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -g src/odoc_wiki/odoc_wiki.cma -d wiki/odoc-$@ \
+	${OCAMLDOC} -g ${ODOC_WIKI} -d wiki/odoc-$@ \
           -pp "camlp4o ${LWT_DIR}/_build/syntax/pa_optcomp.cmo -let windows=false" \
 	  -intro ${LWT_DIR}/apiref-intro -colorize-code \
 	  ${LWTDOCINCLUDES} ${LWT_DOC}
 
 LWT_VERSION ?= dev
 lwt.install:
-	${call odoc_wiki_install,odoc_wiki/lwt,lwt,${LWT_VERSION}}
+	${call odoc_wiki_install,wiki/odoc-lwt,lwt,${LWT_VERSION}}
 
 ######## WIKIDOC JS_OF_OCAML ########
 
@@ -45,17 +51,17 @@ DERIVING := "YES"
 JS_OF_OCAML_DOC := ${addprefix ${JS_OF_OCAML_DIR}/,${DOC}}
 
 .PHONY:js_of_ocaml
-js_of_ocaml: src/odoc_wiki/odoc_wiki.cma
+js_of_ocaml: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -stars  -g src/odoc_wiki/odoc_wiki.cma -d wiki/odoc-$@ \
+	${OCAMLDOC} -stars  -g ${ODOC_WIKI} -d wiki/odoc-$@ \
 	-intro ${JS_OF_OCAML_DIR}/doc/api-index \
 	-I ${JS_OF_OCAML_DIR}/lib -I ${JS_OF_OCAML_DIR}/lib/deriving_json \
 	-package lwt ${JS_OF_OCAML_DOC}
 
 JS_OF_OCAML_VERSION ?= dev
 js_of_ocaml.install:
-	${call odoc_wiki_install,odoc_wiki/js_of_ocaml,js_of_ocaml,${JS_OF_OCAML_VERSION}}
+	${call odoc_wiki_install,wiki/odoc-js_of_ocaml,js_of_ocaml,${JS_OF_OCAML_VERSION}}
 
 ######## WIKIDOC TYXML ########
 
@@ -66,16 +72,16 @@ TYXML_DIR ?= ${SRCROOT}/tyxml
 TYXML_DOC := ${addprefix ${TYXML_DIR}/,${DOC}}
 
 .PHONY: tyxml
-tyxml: src/odoc_wiki/odoc_duce_wiki.cma
+tyxml: ${ODOC_DUCE_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDUCEDOC} -stars -g src/odoc_wiki/odoc_duce_wiki.cma -d wiki/odoc-$@ \
+	${OCAMLDUCEDOC} -stars -g ${ODOC_DUCE_WIKI} -d wiki/odoc-$@ \
 	  -intro ${TYXML_DIR}/doc/indexdoc -colorize-code \
 	  -package ocamlduce -I ${TYXML_DIR}/lib ${TYXML_DOC}
 
 TYXML_VERSION ?= dev
 tyxml.install:
-	${call odoc_wiki_install,odoc_wiki/tyxml,tyxml,${TYXML_VERSION}}
+	${call odoc_wiki_install,wiki/odoc-tyxml,tyxml,${TYXML_VERSION}}
 
 ####### WIKIDOC OCSIGENSERVER #######
 
@@ -84,17 +90,17 @@ tyxml.install:
 SERVER_DOC := ${addprefix ${SERVER_DIR}/src/,${DOC} ${PLUGINS_DOC}}
 
 .PHONY: server
-server: src/odoc_wiki/odoc_wiki.cma
+server: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
 	OCAMLPATH=${SERVER_DIR}/src/files:${OCAMLPATH} \
-	  ${OCAMLDOC} -g src/odoc_wiki/odoc_wiki.cma \
-	  -d odoc_wiki/server -intro ${SERVER_DIR}/doc/indexdoc \
+	  ${OCAMLDOC} -g ${ODOC_WIKI} \
+	  -d wiki/odoc-server -intro ${SERVER_DIR}/doc/indexdoc \
 	  -package ocsigenserver ${SERVER_DOC}
 
 SERVER_VERSION ?= dev
 server.install:
-	${call odoc_wiki_install,odoc_wiki/server,ocsigenserver,${SERVER_VERSION}}
+	${call odoc_wiki_install,wiki/odoc-server,ocsigenserver,${SERVER_VERSION}}
 
 ####### WIKIDOC ELIOM #######
 
@@ -135,37 +141,31 @@ ${TMP}/client/%.mli: ${ELIOM_DIR}/src/client/%.mli
 ${TMP}/client:
 	mkdir -p $@
 
-## Need to call ocamlfind by hand: because "ocamlfind ocamldoc" does
-## not accept custom option, i.e. -subproject from odoc_wiki.
-ELIOM_SERVER_INC := \
-	$(shell OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
-	    ocamlfind query -i-format -r eliom.server)
-ELIOM_CLIENT_INC := \
-	$(shell OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
-	    ocamlfind query -i-format -r eliom.client)
-
 .PHONY:eliom
-eliom: src/odoc_wiki/odoc_duce_wiki.cma \
+eliom: ${ODOC_DUCE_WIKI} \
 	       ${TMP}/server ${ELIOM_SERVER_DOC} \
 	       ${TMP}/client ${ELIOM_CLIENT_DOC}
 	rm -rf wiki/odoc-$@/server wiki/odoc-$@/client
 	mkdir -p wiki/odoc-$@/server wiki/odoc-$@/client
 	 ## Server
-	ocamlducedoc -g src/odoc_wiki/odoc_duce_wiki.cma \
-          -d odoc_wiki/eliom/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
-          -colorize-code -subproject server \
-          ${ELIOM_SERVER_INC} -I ${ELIOM_DIR}/src/server/extensions \
-         ${ELIOM_SERVER_DOC}
+	OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
+	ODOC_WIKI_SUBPROJECT=server \
+        ${OCAMLDUCEDOC} -g ${ODOC_DUCE_WIKI} \
+          -d wiki/odoc-$@/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
+          -colorize-code -package eliom.server \
+          -I ${ELIOM_DIR}/src/server/extensions \
+          ${ELIOM_SERVER_DOC}
 	 ## Client
-	ocamldoc -g src/odoc_wiki/odoc_wiki.cma \
-          -d odoc_wiki/eliom/client -intro ${ELIOM_DIR}/doc/client/indexdoc \
-          -colorize-code -subproject client \
-	  ${ELIOM_CLIENT_INC} ${ELIOM_CLIENT_DOC}
+	OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
+	ODOC_WIKI_SUBPROJECT=client ${OCAMLDOC} -g ${ODOC_WIKI} \
+          -d wiki/odoc-$@/client -intro ${ELIOM_DIR}/doc/client/indexdoc \
+          -colorize-code -package eliom.client \
+          ${ELIOM_CLIENT_DOC}
 	rm -r ${TMP}
 
 ELIOM_VERSION ?= dev
 eliom.install:
-	${call odoc_wiki_install,odoc_wiki/eliom,eliom,${ELIOM_VERSION}}
+	${call odoc_wiki_install,wiki/odoc-eliom,eliom,${ELIOM_VERSION}}
 	sudo -u www-data cp ${ELIOM_DIR}/doc/index.wiki \
 	    /var/www/data/apiwiki/eliom/${ELIOM_VERSION}/index.wiki
 
@@ -178,17 +178,17 @@ eliom.install:
 # 	-package ocsigen,ocamlduce,lwt
 
 # .PHONY:ocserveliom13
-# ocserveliom13: src/odoc_wiki/odoc_wiki.cma
+# ocserveliom13: ${ODOC_WIKI}
 # 	rm -rf wiki/odoc-$@
 # 	mkdir -p wiki/odoc-$@
 # 	OCAMLPATH=${OCSIGEN13_DIR}/files:${OCAMLPATH} \
-# 	  ${OCAMLDUCEDOC} -g src/odoc_wiki/odoc_duce_wiki.cma \
+# 	  ${OCAMLDUCEDOC} -g ${ODOC_DUCE_WIKI} \
 # 	    -d wiki/odoc-$@ -intro ${OCSIGEN13_DIR}/files/indexdoc -colorize-code \
 # 	    ${DOC13INCLUDES} ${addprefix ${OCSIGEN13_DIR}/,${DOC13}}
 
 # OCSIGEN13_VERSION ?= 1.3
 # ocserveliom13.install:
-# 	${call odoc_wiki_install,odoc_wiki/ocserveliom13,oscigenserver,${OCSIGEN13_VERSION}}
+# 	${call odoc_wiki_install,wiki/odoc-ocserveliom13,oscigenserver,${OCSIGEN13_VERSION}}
 
 ######## WIKIDOC OCSIGEN 1.2 ########
 
@@ -199,17 +199,17 @@ eliom.install:
 # 	-package ocsigen,ocamlduce,lwt
 
 # .PHONY:ocserveliom12
-# ocserveliom12: src/odoc_wiki/odoc_wiki.cma
+# ocserveliom12: ${ODOC_WIKI}
 # 	rm -rf wiki/odoc-$@
 # 	mkdir -p wiki/odoc-$@
 # 	OCAMLPATH=${OCSIGEN12_DIR}:${OCAMLPATH} \
-# 	  ${OCAMLDUCEDOC} -g src/odoc_wiki/odoc_duce_wiki.cma \
+# 	  ${OCAMLDUCEDOC} -g ${ODOC_DUCE_WIKI} \
 # 	    -d wiki/odoc-$@ -intro ${OCSIGEN12_DIR}/files/indexdoc -colorize-code \
 # 	    ${DOC12INCLUDES} ${addprefix ${OCSIGEN12_DIR}/,${DOC10}}
 
 # OCSIGEN12_VERSION ?= 1.2
 # ocserveliom12.install:
-# 	${call odoc_wiki_install,odoc_wiki/ocserveliom12,ocsigenserver,${OCSIGEN12_VERSION}}
+# 	${call odoc_wiki_install,wiki/odoc-ocserveliom12,ocsigenserver,${OCSIGEN12_VERSION}}
 
 ######## WIKIDOC OCLOSURE ########
 
@@ -223,17 +223,17 @@ OCLOSURE_INCLUDES := \
 OCLOSURE_DOC := ${OCLOSURE_DIR}/goog/goog.mli
 
 .PHONY: oclosure
-oclosure: src/odoc_wiki/odoc_wiki.cma
+oclosure: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -stars  -g src/odoc_wiki/odoc_wiki.cma -d wiki/odoc-$@ \
+	${OCAMLDOC} -stars  -g ${ODOC_WIKI} -d wiki/odoc-$@ \
 	-intro ${OCLOSURE_DIR}/doc/apiref-overview -colorize-code \
 	-pp "cpp -traditional-cpp" \
 	${OCLOSURE_INCLUDES} ${OCLOSURE_DOC}
 
 OCLOSURE_VERSION ?= dev
 oclosure.install:
-	${call odoc_wiki_install,odoc_wiki/oclosure,oclosure,${OCLOSURE_VERSION}}
+	${call odoc_wiki_install,wiki/odoc-oclosure,oclosure,${OCLOSURE_VERSION}}
 
 
 ####

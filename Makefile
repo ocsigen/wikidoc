@@ -1,6 +1,8 @@
 -include Makefile.local
 include Makefile.config
 
+OCAMLDUCE ?= NO
+
 SRCROOT         ?= ../src
 
 LWT_DIR         ?= ${SRCROOT}/lwt
@@ -12,18 +14,22 @@ MACAQUE_DIR     ?= ${SRCROOT}/macaque
 TUTORIAL_DIR    ?= ${SRCROOT}/tutorial
 
 OCAMLFIND     ?= ocamlfind
-OCAMLDUCEFIND ?= ocamlducefind
-
-OCAMLDOC     ?= ${OCAMLFIND} ocamldoc
-OCAMLDUCEDOC ?= ${OCAMLDUCEFIND} ocamldoc
 
 OCAMLC       ?= ${OCAMLFIND} ocamlc
-OCAMLDUCEC   ?= ${OCAMLDUCEFIND} ocamlc
 OCAMLOPT     ?= ${OCAMLFIND} ocamlopt
-OCAMLDUCEOPT ?= ${OCAMLDUCEFIND} ocamlopt
 OCAMLDEP     ?= ${OCAMLFIND} ocamldep
-OCAMLDUCEDEP ?= ${OCAMLDUCEFIND} ocamldep
+OCAMLDOC     ?= ${OCAMLFIND} ocamldoc
 OCAMLLEX     ?= ocamllex
+
+ifeq "${OCAMLDUCE}" "YES"
+OCAMLDUCEFIND ?= ocamlducefind
+OCAMLDUCEC    ?= ${OCAMLDUCEFIND} ocamlc
+OCAMLDUCEOPT  ?= ${OCAMLDUCEFIND} ocamlopt
+OCAMLDUCEDEP  ?= ${OCAMLDUCEFIND} ocamldep
+OCAMLDUCEDOC  ?= ${OCAMLDUCEFIND} ocamldoc
+else
+OCAMLDUCEDOC  ?= ${OCAMLFIND} ocamldoc
+endif
 
 include Makefile.odoc
 include Makefile.book
