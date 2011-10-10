@@ -8,7 +8,7 @@ let get_attrib name = fun args ->
 
 let get_language = get_attrib "language"
 let get_class = get_attrib "class"
-let get_file = get_attrib "file"
+(* let get_file = get_attrib "file" *)
 (* let get_fragment = get_attrib "fragment" *)
 
 let get_project args =
