@@ -1,0 +1,41 @@
+
+== Configuration ==
+
+Copy Makefile.config into Makefile.local ; and customize
+
+== How to build the ocsigen book ? ==
+
+$ make texsrc
+$ make tex/ocsigen.pdf
+
+== How to generate the wiki API ? ==
+
+For all api:
+
+$ make api
+
+Or one project at a time :
+
+$ make lwt
+$ make js_of_ocaml
+$ make tyxml
+$ make server
+$ make eliom
+$ make oclosure
+
+On ocsigen.org, if you are a sudoers, you may publish the API:
+
+$ make api.install
+
+Or for a specific project or a specific version:
+
+$ make eliom.install
+$ ELIOM_VERSION=2.0.2  make eliom.install
+
+== Building & install tools ==
+
+The following commands will build and install 'latex_of_wiki' and
+'odoc_wika.cma'.
+
+$ make all
+$ make install

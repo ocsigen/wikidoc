@@ -1,6 +1,9 @@
 -include Makefile.local
 include Makefile.config
 
+BINDIR    ?= /usr/local/bin
+INSTALL   ?= install
+
 OCAMLDUCE ?= NO
 
 SRCROOT         ?= ../src
@@ -41,3 +44,6 @@ clean::
 
 distclean:: clean
 	-rm -rf wiki tex
+
+
+reinstall:: uninstall install

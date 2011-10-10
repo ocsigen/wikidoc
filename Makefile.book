@@ -71,5 +71,13 @@ tex/menu.tex: wiki/menu.wiki
 
 ###
 
+install::
+	${INSTALL} -m 755 src/latex_of_wiki/latex_of_wiki ${BINDIR}
+
+uninstall::
+	-rm -rf ${BINDIR}/latex_of_wiki
+
+###
+
 clean::
 	${MAKE} -C src/latex_of_wiki clean

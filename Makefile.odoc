@@ -246,5 +246,11 @@ odoc_wiki_install=\
 
 ###
 
+install::
+	${OCAMLFIND} install wikidoc src/odoc_wiki/META ${ODOC_WIKI} ${ODOC_DUCE_WIKI}
+
+uninstall::
+	${OCAMLFIND} remove wikidoc
+
 clean::
 	${MAKE} -C src/odoc_wiki clean
