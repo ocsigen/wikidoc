@@ -11,10 +11,10 @@ all::
 	${MAKE} -C src/odoc_wiki
 
 src/odoc_wiki/odoc_wiki.cma:
-	${MAKE} -C src/odoc_wiki odoc_wiki.cma
+	${MAKE} -C src/odoc_wiki odoc_wiki.cma odoc_wiki.cmxs
 
 src/odoc_wiki/odoc_duce_wiki.cma:
-	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cma
+	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cma odoc_duce_wiki.cmxs
 
 api: lwt js_of_ocaml tyxml server eliom oclosure
 
@@ -23,8 +23,10 @@ api.install: lwt.install js_of_ocaml.install tyxml.install \
 
 ####### WIKIDOC LWT #######
 
-LWT_DOC := $(wildcard ${LWT_DIR}/_build/syntax/*.mli) \
-	   $(wildcard ${LWT_DIR}/_build/src/*/*.mli)
+LWT_DOC := $(addprefix -load , \
+	     $(wildcard ${LWT_DIR}/_build/syntax/*.odoc) \
+	     $(wildcard ${LWT_DIR}/_build/src/*/*.odoc) \
+	   )
 
 LWTDOCINCLUDESDIR=${wildcard ${LWT_DIR}/_build/src/*} ${LWT_DIR}/_build/syntax
 LWTDOCINCLUDES= ${addprefix -I ,${LWTDOCINCLUDESDIR}} \
@@ -34,8 +36,7 @@ LWTDOCINCLUDES= ${addprefix -I ,${LWTDOCINCLUDESDIR}} \
 lwt: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -g ${ODOC_WIKI} -d wiki/odoc-$@ \
-          -pp "camlp4o ${LWT_DIR}/_build/syntax/pa_optcomp.cmo -let windows=false" \
+	${OCAMLDOC} -g src/odoc_wiki/odoc_wiki.cma -d wiki/odoc-$@ \
 	  -intro ${LWT_DIR}/apiref-intro -colorize-code \
 	  ${LWTDOCINCLUDES} ${LWT_DOC}
 
