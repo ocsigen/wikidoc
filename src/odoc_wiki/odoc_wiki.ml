@@ -9,8 +9,6 @@
 (*  en Automatique.  All rights reserved.  This file is distributed    *)
 (*  under the terms of the Q Public License version 1.0.               *)
 
-(** Generation of html documentation of type <div>. *)
-
 let print_DEBUG s = print_string s ; print_newline ()
 
 open Odoc_info
@@ -267,9 +265,9 @@ class virtual text =
       incr ul_level;
       List.iter
         (fun t ->
-          bsn !ul_level b "*";
+          bsn !ul_level b "\n*";
           bs b " ";
-          self#html_of_text b t; bs b "\n")
+          self#html_of_text b t;)
         tl;
       decr ul_level;
       bs b "\n"
@@ -285,7 +283,7 @@ class virtual text =
       decr ol_level;
       bs b "\n"
 
-    method html_of_Newline b = bs b "\\\\\n\n"
+    method html_of_Newline b = bs b "\n\n"
 
     method html_of_Block b t =
       bs b "\n<< div class=\"odocwiki_blockquote\"|";
@@ -532,13 +530,13 @@ class virtual info =
                bs b Odoc_messages.deprecated ;
                bs b ">>" ;
                self#html_of_text b d;
-               bs b "\\\\\n"
+               bs b "\n"
           );
           (
            match info.M.i_desc with
              None -> ()
            | Some d when d = [Odoc_info.Raw ""] -> ()
-           | Some d -> self#html_of_text b d; bs b "\\\\\n"
+           | Some d -> self#html_of_text b d; bs b "\n"
           );
           self#html_of_author_list b info.M.i_authors;
           self#html_of_version_opt b info.M.i_version;
@@ -1657,9 +1655,9 @@ class wiki =
 
     (** Print html code for a module comment.*)
     method html_of_module_comment b text =
-      bs b "\\\\\n";
+      bs b "\n";
       self#html_of_text b text;
-      bs b "\\\\\n"
+      bs b "\n"
 
     (** Print html code for a class comment.*)
     method html_of_class_comment b ?indent text =
