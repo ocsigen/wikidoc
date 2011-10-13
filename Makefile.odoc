@@ -107,62 +107,28 @@ server.install:
 
 -include ${ELIOM_DIR}/src/server/Makefile.filelist
 
-TMP := $(shell mktemp -d)
-
-ELIOM_SERVER_DOC :=  ${addprefix ${TMP}/server/,${DOC}}
-
-SERVER_NOP4_INTF := ${NOP4}
-
-$(filter-out $(addprefix ${TMP}/server/,${SERVER_NOP4_INTF}), ${ELIOM_SERVER_DOC}): \
-${TMP}/server/%.mli: ${ELIOM_DIR}/src/server/%.mli
-	camlp4o ${ELIOM_DIR}/src/syntax/pa_include.cmo -printer o $< > $@
-
-$(addprefix ${TMP}/server/,${SERVER_NOP4_INTF}): \
-${TMP}/server/%.mli: ${ELIOM_DIR}/src/server/%.mli
-	cp $< $@
-
-${TMP}/server:
-	mkdir -p $@
-	mkdir -p $@/extensions
+ELIOM_SERVER_DOC := ${addprefix -load ${ELIOM_DIR}/src/server/,${DOC:.mli=.odoc}}
 
 -include ${ELIOM_DIR}/src/client/Makefile.filelist
 
-ELIOM_CLIENT_DOC := ${addprefix ${TMP}/client/,${DOC}}
-
-CLIENT_NOP4_INTF := ${NOP4}
-
-$(filter-out $(addprefix ${TMP}/client/,${CLIENT_NOP4_INTF}), ${ELIOM_CLIENT_DOC}): \
-${TMP}/client/%.mli: ${ELIOM_DIR}/src/client/%.mli
-	camlp4o ${ELIOM_DIR}/src/syntax/pa_include.cmo -printer o $< > $@
-
-$(addprefix ${TMP}/client/,${CLIENT_NOP4_INTF}): \
-${TMP}/client/%.mli: ${ELIOM_DIR}/src/client/%.mli
-	cp $< $@
-
-${TMP}/client:
-	mkdir -p $@
+ELIOM_CLIENT_DOC := ${addprefix -load ${ELIOM_DIR}/src/client/,${DOC:.mli=.odoc}}
 
 .PHONY:eliom
-eliom: ${ODOC_DUCE_WIKI} \
-	       ${TMP}/server ${ELIOM_SERVER_DOC} \
-	       ${TMP}/client ${ELIOM_CLIENT_DOC}
+eliom: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@/server wiki/odoc-$@/client
 	mkdir -p wiki/odoc-$@/server wiki/odoc-$@/client
+	${MAKE} -C ${ELIOM_DIR} odoc
 	 ## Server
-	OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
 	ODOC_WIKI_SUBPROJECT=server \
-        ${OCAMLDUCEDOC} -g ${ODOC_DUCE_WIKI} \
+          ${OCAMLDOC} -g ${ODOC_WIKI} \
           -d wiki/odoc-$@/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
-          -colorize-code -package eliom.server \
-          -I ${ELIOM_DIR}/src/server/extensions \
-          ${ELIOM_SERVER_DOC}
+          -colorize-code ${ELIOM_SERVER_DOC}
 	 ## Client
 	OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
-	ODOC_WIKI_SUBPROJECT=client ${OCAMLDOC} -g ${ODOC_WIKI} \
+	ODOC_WIKI_SUBPROJECT=client
+	  ${OCAMLDOC} -g ${ODOC_WIKI} \
           -d wiki/odoc-$@/client -intro ${ELIOM_DIR}/doc/client/indexdoc \
-          -colorize-code -package eliom.client \
-          ${ELIOM_CLIENT_DOC}
-	rm -r ${TMP}
+          -colorize-code ${ELIOM_CLIENT_DOC}
 
 ELIOM_VERSION ?= dev
 eliom.install:
