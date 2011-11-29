@@ -41,22 +41,24 @@ let _ =
       | "code" ->
         (false,
          fun () args content ->
+           let content = map_option String.remove_spaces content in
            `Flow5
              (match content, get_language args with
                | None, _ -> Lwt.return (Leaf "")
                | Some content, Some "ocaml" ->
                  Lwt.return (Node3 ("\n\\lstset{language=[Objective]Caml}\\begin{lstlisting}\n",
                                     [Leaf_unquoted content],
-                                    "\n\\end{lstlisting}"))
+                                    "\n\\end{lstlisting}\n\\medskip\n\n\\noindent"))
                | Some content, Some l ->
                  Lwt.return (Node3 ("\n\\lstset{language="^l^"}\\begin{lstlisting}",
                                     [Leaf_unquoted content],
-                                    "\\end{lstlisting}"))
+                                    "\\end{lstlisting}\n\\medskip\n\n\\noindent"))
                | Some content, None ->
 		 LatexBuilder.errmsg ~err:(Leaf "missing language argument") name))
       | "code-inline" ->
         (false,
          fun () args content ->
+           let content = map_option String.remove_spaces content in
            `Phrasing_without_interactive
              (match content, get_language args with
                | None, _ -> Lwt.return (Leaf "")
@@ -66,6 +68,18 @@ let _ =
 		   LatexBuilder.errmsg ~err:(Leaf "unssupported language")  name
                | Some content, None ->
                  (Lwt.return (Node3 ("{\\tt ", [Leaf content], "}")))))
+      | "paragraph" ->
+        (true,
+         fun () args content ->
+           let content = map_option String.remove_spaces content in
+           `Phrasing_without_interactive
+             (match content with
+               | None -> Lwt.return (Leaf "")
+               | Some content ->
+                  inlinetex_of_wiki content >>= fun r ->
+                  Lwt.return (Node3 ("\\paragraph{",
+                                     r,
+                                     "}"))))
       | "span" ->
         (true,
          fun () args content ->
@@ -183,7 +197,7 @@ let _ =
 
 		let id = Doclink.parse_api_contents args contents in
 		let body = get_text ~default:(Doclink.string_of_id ~spacer:".​" id) args in
-		Lwt.return (Leaf body)
+		Lwt.return (Node3 ("{\\tt ", [Leaf body], "}"))
 	      with Doclink.Error s ->
 		LatexBuilder.errmsg ~err:(Leaf s) name)))
 

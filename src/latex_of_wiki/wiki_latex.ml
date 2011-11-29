@@ -161,7 +161,7 @@ module LatexBuilder = struct
   let pre_elem attribs stringlist =
         Lwt.return (Node3 ("\n\\begin{verbatim}\n",
                            List.map (fun s -> Leaf_unquoted s) stringlist,
-                           "\n\\end{verbatim}\n"))
+                           "\\end{verbatim}\n\\medskip\n\n\\noindent"))
   let h1_elem attribs inlinelist =
         Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
         Lwt.return (Node3 (sect 2, inlinelist, "}\n"))

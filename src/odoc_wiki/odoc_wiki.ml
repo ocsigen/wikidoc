@@ -265,7 +265,8 @@ class virtual text =
       incr ul_level;
       List.iter
         (fun t ->
-          bsn !ul_level b "\n*";
+          bs b "\n";
+          bsn !ul_level b "*";
           bs b " ";
           self#html_of_text b t;)
         tl;
@@ -331,7 +332,7 @@ class virtual text =
           let target =
             match kind with
               Odoc_info.RK_module -> "module " ^ name
-            | Odoc_info.RK_module_type -> "module type" ^ name
+            | Odoc_info.RK_module_type -> "module type " ^ name
             | Odoc_info.RK_class -> "class " ^ name
             | Odoc_info.RK_class_type -> "class type " ^ name
             | Odoc_info.RK_value -> "val " ^ name

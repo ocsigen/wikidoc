@@ -14,7 +14,7 @@ module String = struct
       if (i > endd) || (beg > i)
       then i
       else
-	if s.[i] = ' '
+	if s.[i] = ' ' || s.[i] = '\r' || s.[i] = '\n' || s.[i] = '\t'
 	then find_not_space s (i+step) step
 	else i
     in
