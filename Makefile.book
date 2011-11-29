@@ -22,6 +22,8 @@ all::
 src/latex_of_wiki/latex_of_wiki:
 	${MAKE} -C src/latex_of_wiki latex_of_wiki
 
+pdf: texsrc tex/ocsigen.pdf
+
 ###
 
 # define function: target_name(project, wiki_dir/page.wiki)
@@ -46,7 +48,7 @@ TEXINPUTS:=$(PWD)/files:${TEXINPUTS}
 export TEXINPUTS
 
 tex/ocsigen.pdf: tex/ocsigen.tex $(wildcard tex/*.tex)
-	cd $(dir $@); xelatex $(notdir $<) && xelatex $(notdir $<)
+	cd $(dir $@); xelatex $(notdir $<)
 
 tex/ocsigen.tex: files/header.tex tex/menu.tex files/footer.tex
 	mkdir -p tex

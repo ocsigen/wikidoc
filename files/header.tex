@@ -9,6 +9,7 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{framed}
+\usepackage{fancyvrb}
 
 %%%%%% xelatex:
 \usepackage{fontspec}
@@ -85,6 +86,10 @@
   escapechar=°
 % échappement LaTeX
 }
+
+\DefineVerbatimEnvironment%
+{verbatim}{Verbatim}
+{frame=leftline,framerule=1.5mm,rulecolor=\color{lightgray},framesep=4mm}
 
 \title{The Ocsigen Book}
 
