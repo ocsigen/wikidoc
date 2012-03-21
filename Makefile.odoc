@@ -1,8 +1,8 @@
 
-ODOC_WIKI := src/odoc_wiki/odoc_wiki.cma
+ODOC_WIKI := src/odoc_wiki/odoc_wiki.cma  src/odoc_wiki/odoc_wiki.cmxs
 
 ifeq "${OCAMLDUCE}" "YES"
-ODOC_DUCE_WIKI := src/odoc_wiki/odoc_duce_wiki.cma
+ODOC_DUCE_WIKI := src/odoc_wiki/odoc_duce_wiki.cma src/odoc_wiki/odoc_duce_wiki.cmxs
 else
 ODOC_DUCE_WIKI := ${ODOC_WIKI}
 endif
@@ -11,10 +11,14 @@ all::
 	${MAKE} -C src/odoc_wiki
 
 src/odoc_wiki/odoc_wiki.cma:
-	${MAKE} -C src/odoc_wiki odoc_wiki.cma odoc_wiki.cmxs
+	${MAKE} -C src/odoc_wiki odoc_wiki.cma
+src/odoc_wiki/odoc_wiki.cmxs:
+	${MAKE} -C src/odoc_wiki odoc_wiki.cmxs
 
 src/odoc_wiki/odoc_duce_wiki.cma:
-	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cma odoc_duce_wiki.cmxs
+	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cma
+src/odoc_wiki/odoc_duce_wiki.cmxs:
+	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cmxs
 
 api: lwt js_of_ocaml tyxml server eliom oclosure
 
