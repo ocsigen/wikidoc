@@ -137,6 +137,7 @@ let bp = Printf.bprintf
 let bs = Buffer.add_string
 let bsn n b s = for i = 1 to n do Buffer.add_string b s done
 let regexp_escapable = Str.regexp "\\([]<>*/=[{}:\\~|#-^_;:,]\\)"
+let regexp_simple_escapable = Str.regexp "\\(#\\)"
 let regexp_nonwiki_escapable = Str.regexp_string ">>"
 let ul_level = ref 0
 let ol_level = ref 0
@@ -157,6 +158,8 @@ class virtual text =
     (** Escape the strings which would clash with wiki syntax *)
     method escape s =
       Str.global_replace regexp_escapable "~\\1" s
+    method simple_escape s =
+      Str.global_replace regexp_simple_escapable "~\\1" s
 
     (** Same for non wiki parts. *)
     method escape_nonwiki s =
@@ -797,6 +800,7 @@ class wiki =
 	Odoc_info.remove_ending_newline
 	  (Odoc_import.string_of_type_expr
 	     ~margin:(Odoc_import.default_margin - String.length indent) t) in
+      let s = self#simple_escape s in
       let raw = self#create_fully_qualified_idents_links m_name	~raw:true s in
       let s2, _ = newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
