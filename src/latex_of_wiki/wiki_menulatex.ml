@@ -42,7 +42,7 @@ let item i attribs il =
       Lwt.return (Node3 ("\\input{", [Leaf addr], "}\n"))
     | il ->
       output_string offset_file "===";
-      Lwt.return (Node3 (sect i, il, "}\n"))
+      Lwt.return (Nodelist [sect i; Nodelist il; close_sect ()])
 
 let plugin_fun = function
   | _ ->

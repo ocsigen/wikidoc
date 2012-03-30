@@ -15,6 +15,7 @@ ELIOM_DIR       ?= ${SRCROOT}/eliom
 OCLOSURE_DIR    ?= ${SRCROOT}/oclosure
 MACAQUE_DIR     ?= ${SRCROOT}/macaque
 TUTORIAL_DIR    ?= ${SRCROOT}/tutorial
+TYXML_DIR       ?= ${SRCROOT}/tyxml
 
 OCAMLFIND     ?= ocamlfind
 

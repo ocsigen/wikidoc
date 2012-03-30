@@ -56,7 +56,9 @@
 \newenvironment{wip}{\includegraphics[width=1.5cm]{wip.png}\hfill\begin{minipage}{14cm}\vspace*{-1.5em}\begin{shaded}}{\end{shaded}\end{minipage}}
 \newcommand{\wipinline}[1]{\colorbox{shadecolor}{\bfseries\includegraphics[width=0.5cm]{wip.png}#1}}
 \newenvironment{concepts}{\hfill\begin{minipage}{10cm}\begin{frameshaded}\small{\bfseries Concepts}\\}{\end{frameshaded}\end{minipage}\vspace*{0.5em}}
-\newenvironment{encadre}{\begin{shaded}}{\end{shaded}}
+\newenvironment{encadre}[1]{\begin{shaded}\textbf{#1}
+
+}{\end{shaded}}
 
 
 \newlength{\textlarg}

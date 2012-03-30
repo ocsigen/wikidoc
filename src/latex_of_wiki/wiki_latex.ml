@@ -40,6 +40,7 @@ let reg3 = Str.regexp_string "&"
 let reg4 = Str.regexp_string "%"
 let reg5 = Str.regexp_string "#"
 let reg6 = Str.regexp_string "^"
+let reg7 = Str.regexp_string "-"
 let regs = [
   (reg0, "WIKIBACKSLASHWIKI");
   (reg1, "\\_");
@@ -65,6 +66,9 @@ let escape_ref s =
   let s = Str.global_replace reg5 "*" s in
   s
 
+let escape_label s =
+  List.fold_left (fun s (reg, subst) -> Str.global_replace reg subst s) s [reg7,":"; reg1,"-"; reg4, "-pc"]
+
 let reg_u = Str.regexp_string "~>>"
 let regs_unquoted = [
   (reg_u, ">>");
@@ -72,7 +76,6 @@ let regs_unquoted = [
 
 let escape_code s =
   List.fold_left (fun s (reg, subst) -> Str.global_replace reg subst s) s regs_unquoted
-
 
 let rec print_rope = function
   | Menu_link _ -> print_string "{\\bfseries ** Error in menu}"
@@ -82,17 +85,26 @@ let rec print_rope = function
   | Node3 (s1, rl, s2) -> print_string s1; List.iter print_rope rl; print_string s2
   | Nodelist l -> List.iter print_rope l
 
-
-let offset = try int_of_string Sys.argv.(1) with _ -> 0
+let offset = try int_of_string Sys.argv.(2) with _ -> 0
+let label_prefix = escape_label Sys.argv.(1)
 
 let sect n = match n+offset with
-  | 1 -> "\n\\part{"
-  | 2 -> "\n\\chapter{"
-  | 3 -> "\n\\section{"
-  | 4 -> "\n\\subsection{"
-  | 5 -> "\n\\subsubsection{"
-  | 6 -> "\n\\paragraph{"
-  | _ -> "\n\n{"
+  | 1 -> Leaf_unquoted "\n\\part{"
+  | 2 -> Leaf_unquoted "\n\\chapter{"
+  | 3 -> Leaf_unquoted "\n\\section{"
+  | 4 -> Leaf_unquoted "\n\\subsection{"
+  | 5 -> Leaf_unquoted "\n\\subsubsection{"
+  | 6 -> Leaf_unquoted "\n\\paragraph{"
+  | _ -> Leaf_unquoted "\n\n{"
+
+let close_sect ?id () =
+  match id with
+  | Some id -> Node3 ("}\n\\label{",[Leaf_unquoted id],"}\n")
+  | None -> Leaf_unquoted "}\n"
+
+let get_id attribs =
+  try Some (label_prefix ^ ":" ^ escape_label (List.assoc "id" attribs))
+  with Not_found -> None
 
 let is_inline = ref 0
 
@@ -163,23 +175,29 @@ module LatexBuilder = struct
                            List.map (fun s -> Leaf_unquoted s) stringlist,
                            "\\end{verbatim}\n\\medskip\n\n\\noindent"))
   let h1_elem attribs inlinelist =
-        Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
-        Lwt.return (Node3 (sect 2, inlinelist, "}\n"))
+    Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
+    let id = Some label_prefix in
+    Lwt.return (Nodelist [sect 2; Nodelist inlinelist; close_sect ?id ()])
   let h2_elem attribs inlinelist =
-        Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
-        Lwt.return (Node3 (sect 3, inlinelist, "}\n"))
+    Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
+    let id = get_id attribs in
+    Lwt.return (Nodelist [sect 3; Nodelist inlinelist; close_sect ?id  ()])
   let h3_elem attribs inlinelist =
-        Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
-        Lwt.return (Node3 (sect 4, inlinelist, "}\n"))
+    Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
+    let id = get_id attribs in
+    Lwt.return (Nodelist [sect 4; Nodelist inlinelist; close_sect ?id  ()])
   let h4_elem attribs inlinelist =
-        Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
-        Lwt.return (Node3 (sect 5, inlinelist, "}\n"))
+    Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
+    let id = get_id attribs in
+    Lwt.return (Nodelist [sect 5; Nodelist inlinelist; close_sect ?id  ()])
   let h5_elem attribs inlinelist =
-        Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
-        Lwt.return (Node3 (sect 6, inlinelist, "}\n"))
+    Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
+    let id = get_id attribs in
+    Lwt.return (Nodelist [sect 6; Nodelist inlinelist; close_sect ?id  ()])
   let h6_elem attribs inlinelist =
-        Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
-        Lwt.return (Node3 (sect 7, inlinelist, "}\n\n"))
+    Lwt_list.map_s (fun x -> x) inlinelist >>= fun inlinelist ->
+    let id = get_id attribs in
+    Lwt.return (Nodelist [sect 7; Nodelist inlinelist; close_sect ?id  (); Leaf "\n"])
   let ul_elem attribs l =
         Lwt_list.map_s (fun (il, flopt, _) ->
           Lwt_list.map_s (fun x -> x) il >>= fun il ->

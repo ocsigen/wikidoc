@@ -1,7 +1,11 @@
 open Util
 open Wiki_latex
 
-let default_project : string option ref = ref None
+let default_project, default_chapter =
+  let pos = String.index Wiki_latex.label_prefix ':' in
+  let len = String.length Wiki_latex.label_prefix in
+  String.sub Wiki_latex.label_prefix 0 (String.index Wiki_latex.label_prefix ':'),
+  String.sub Wiki_latex.label_prefix (pos+1) (len-pos-1)
 
 let get_attrib name = fun args ->
   try Some (List.assoc name args) with Not_found -> None
@@ -9,21 +13,29 @@ let get_attrib name = fun args ->
 let get_language = get_attrib "language"
 let get_class = get_attrib "class"
 (* let get_file = get_attrib "file" *)
-(* let get_fragment = get_attrib "fragment" *)
+let get_fragment = get_attrib "fragment"
 
 let get_project args =
-  try Some (List.assoc "project" args)
-  with Not_found -> !default_project
+  try match List.assoc "project" args with
+    | "ocsigenserver" -> "server"
+    | s -> s
+  with Not_found -> default_project
 let get_sub args =
   try String.split '/' (List.assoc "subproject" args)
   with Not_found -> []
 let get_text ~default args =
   try List.assoc "text" args
   with Not_found -> default
-let get_chapter args =
+let get_chapter project args =
   try List.assoc "chapter" args
-  with Not_found -> raise (Doclink.Error "Missing chapter argument")
-
+  with Not_found ->
+    match project with
+      | "lwt" -> "manual"
+      | "tyxml" -> "intro"
+      | "js_of_ocaml" -> "overview"
+      | "oclosure" -> "intro"
+      | p when p = default_project -> default_chapter
+      | _ -> failwith ("GRgr:" ^ project ^ " " ^ Wiki_latex.label_prefix)
 
 let _ =
   let plugin_fun = !LatexBuilder.plugin_fun in
@@ -134,15 +146,19 @@ let _ =
                                      r,
                                      "\\end{concepts}\n\n")))
                | None -> Lwt.return (Leaf ""))))
-      | "concept" -> (* FIXME title *)
+      | "concept" ->
         (true,
          (fun () args content ->
+           let title =
+             try Wiki_latex.escape (List.assoc "title" args)
+             with Not_found -> "Concept"
+           in
            let content = map_option String.remove_spaces content in
            `Flow5
 	     (match content with
 	       | Some content ->
 		 (tex_of_wiki content >>= fun r ->
-                  Lwt.return (Node3 ("\n\n\\begin{encadre}",
+                  Lwt.return (Node3 ("\n\n\\begin{encadre}{"^title^"}",
                                      r,
                                      "\\end{encadre}\n\n")))
                | None -> Lwt.return (Leaf ""))))
@@ -210,20 +226,26 @@ let _ =
            let contents = map_option String.remove_spaces contents in
 	   `Phrasing_without_interactive
 	     (try
-	     (* Get arguments *)
-	     (* let project = get_project args in *)
-	     (* let chapter = get_chapter args in *)
-	     (* let fragment = get_fragment args in *)
+	        (* Get arguments *)
+	        let project = get_project args in
+	        let chapter = get_chapter project args in
+	        let fragment = get_fragment args in
 
-	     (* TODO add \label on h1... when when attribute id is present (in wiki_latex.ml ?) *)
-	     (* TODO add hyperlink: project-chapter-fragment *)
-
-	     (* Parse contents *)
-		(match contents with
-		    | Some contents -> Wiki_latex.inlinetex_of_wiki contents
-		    | None -> raise (Doclink.Error "Empty contents")) >>= fun contents ->
-		Lwt.return (Nodelist contents)
-
+	        (* TODO add hyperlink: project-chapter-fragment *)
+                let id = project ^ ":" ^ chapter in
+                let id = match fragment with
+                  | None -> id
+                  | Some f -> id ^ ":" ^ f
+                in
+	        (* Parse contents *)
+	        lwt contents = match contents with
+	          | Some contents -> Wiki_latex.inlinetex_of_wiki contents
+	          | None -> raise (Doclink.Error "Empty contents")
+                in
+	        Lwt.return (Node3("\\hyperref[",
+                                  [Leaf_unquoted (Wiki_latex.escape_label id);
+                                   Leaf_unquoted "]{"] @ contents,
+                                  "}"))
 	      with Doclink.Error s ->
 		LatexBuilder.errmsg ~err:(Leaf "s") name)))
 
