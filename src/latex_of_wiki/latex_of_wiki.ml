@@ -12,7 +12,6 @@ let get_attrib name = fun args ->
 
 let get_language = get_attrib "language"
 let get_class = get_attrib "class"
-(* let get_file = get_attrib "file" *)
 let get_fragment = get_attrib "fragment"
 
 let get_project args =
@@ -26,6 +25,9 @@ let get_sub args =
 let get_text ~default args =
   try List.assoc "text" args
   with Not_found -> default
+let get_src args =
+  try List.assoc "src" args
+  with Not_found -> failwith "get_src"
 let get_chapter project args =
   try List.assoc "chapter" args
   with Not_found ->
@@ -231,7 +233,6 @@ let _ =
 	        let chapter = get_chapter project args in
 	        let fragment = get_fragment args in
 
-	        (* TODO add hyperlink: project-chapter-fragment *)
                 let id = project ^ ":" ^ chapter in
                 let id = match fragment with
                   | None -> id
@@ -250,11 +251,17 @@ let _ =
 		LatexBuilder.errmsg ~err:(Leaf "s") name)))
 
       | "a_img" (* TODO include graphics... *)
-      | "a_file" (* TODO hyperlink and footnote with the URL. *)
 	->
 	(false, (fun () args content ->
           `Phrasing_without_interactive
-	    (Lwt.return (Node3 ("\\textbf{** TODO ", [Leaf name], " **}")))))
+	    (Lwt.return (Leaf_unquoted ("\\textbf{ ** TODO a-img **}")))))
+      | "a_file" ->
+	(false, (fun () args content ->
+          let src = get_src args in
+          let project = get_project args in
+          let url = Printf.sprintf "http://ocsigen.org/%s/files/%s" project src in
+          `Phrasing_without_interactive
+	    (Lwt.return (Nodelist [Leaf name;Leaf_unquoted "\\footnote{\\url{"; Leaf url ;Leaf_unquoted "}}"]))))
 
       (* | "ocsigendoc" -> *)
         (* (true, *)
