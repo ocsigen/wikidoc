@@ -66,7 +66,7 @@ wiki/menu.wiki: $(foreach proj,${PROJECTS}, $(call wikidir,${proj})/menu.wiki)
 
 tex/menu.tex: wiki/menu.wiki
 	mkdir -p tex
-	src/latex_of_wiki/latex_of_wiki < $< | \
+	src/latex_of_wiki/latex_of_wiki dummy-label < $< | \
           sed s/input{js\\\\_of\\\\_ocaml-js\\\\_of\\\\_ocaml/input{js_of_ocaml-js_of_ocaml/ | \
           sed s/input{js\\\\_of\\\\_ocaml-/input{js_of_ocaml-/ > $@
 	mv .latex_of_wiki_offsets .offsets
