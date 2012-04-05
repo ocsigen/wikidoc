@@ -57,7 +57,7 @@ tex/ocsigen.tex: files/header.tex tex/menu.tex files/footer.tex
 # compile_menu (project,target_file)
 compile_menu = \
   test ! -f $(call wikidir,$(1))/menu.wiki || \
-  cat $(call wikidir,$(1))/menu.wiki | sed s%\\[\\[%\\[\\["$(1)"-% >> $(2)
+  cat $(call wikidir,$(1))/menu.wiki | sed s%\\[\\[%\\[\\["$(1)"-% | sed 's%^.*<<a_.*$$%%' >> $(2)
 wiki/menu.wiki: $(foreach proj,${PROJECTS}, $(call wikidir,${proj})/menu.wiki)
 	mkdir -p wiki
 	echo "<<menu|" > $@

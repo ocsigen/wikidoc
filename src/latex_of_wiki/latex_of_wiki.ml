@@ -259,9 +259,13 @@ let _ =
 	(false, (fun () args content ->
           let src = get_src args in
           let project = get_project args in
-          let url = Printf.sprintf "http://ocsigen.org/%s/files/%s" project src in
+          let url = Printf.sprintf "http://ocsigen.org/%s/files/%s"
+            project src in
+          let content = match content with
+            | None -> ""
+            | Some s -> s in
           `Phrasing_without_interactive
-	    (Lwt.return (Nodelist [Leaf name;Leaf_unquoted "\\footnote{\\url{"; Leaf url ;Leaf_unquoted "}}"]))))
+	    (Lwt.return (Nodelist [Leaf content;Leaf_unquoted "\\footnote{\\url{"; Leaf url ;Leaf_unquoted "}}"]))))
 
       (* | "ocsigendoc" -> *)
         (* (true, *)
