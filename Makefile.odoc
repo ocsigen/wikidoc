@@ -59,7 +59,7 @@ JS_OF_OCAML_DOC := ${addprefix ${JS_OF_OCAML_DIR}/,${DOC}}
 js_of_ocaml: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -stars  -g ${ODOC_WIKI} -d wiki/odoc-$@ \
+	${OCAMLDOC} -stars  ${addprefix -g ,${ODOC_WIKI}} -d wiki/odoc-$@ \
 	-intro ${JS_OF_OCAML_DIR}/doc/api-index \
 	-I ${JS_OF_OCAML_DIR}/lib -I ${JS_OF_OCAML_DIR}/lib/deriving_json \
 	-package lwt ${JS_OF_OCAML_DOC}
@@ -80,7 +80,7 @@ TYXML_DOC := ${addprefix ${TYXML_DIR}/,${DOC}}
 tyxml: ${ODOC_DUCE_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDUCEDOC} -stars -g ${ODOC_DUCE_WIKI} -d wiki/odoc-$@ \
+	${OCAMLDUCEDOC} -stars ${addprefix -g ,${ODOC_DUCE_WIKI}} -d wiki/odoc-$@ \
 	  -intro ${TYXML_DIR}/doc/indexdoc -colorize-code \
 	  -package ocamlduce -I ${TYXML_DIR}/lib ${TYXML_DOC}
 
@@ -99,7 +99,7 @@ server: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
 	OCAMLPATH=${SERVER_DIR}/src/files:${OCAMLPATH} \
-	  ${OCAMLDOC} -g ${ODOC_WIKI} \
+	  ${OCAMLDOC} ${addprefix -g ,${ODOC_WIKI}} \
 	  -d wiki/odoc-server -intro ${SERVER_DIR}/doc/indexdoc \
 	  -package ocsigenserver ${SERVER_DOC}
 
@@ -111,28 +111,34 @@ server.install:
 
 -include ${ELIOM_DIR}/src/server/Makefile.filelist
 
-ELIOM_SERVER_DOC := ${addprefix -load ${ELIOM_DIR}/src/server/,${DOC:.mli=.odoc}}
+
+ELIOM_SERVER_DOC := ${DOC:.mli=.odoc}
 
 -include ${ELIOM_DIR}/src/client/Makefile.filelist
 
-ELIOM_CLIENT_DOC := ${addprefix -load ${ELIOM_DIR}/src/client/,${DOC:.mli=.odoc}}
+ELIOM_CLIENT_DOC := ${DOC:.mli=.odoc}
 
 .PHONY:eliom
+eliom: TMP_SERVER := $(shell mktemp -d)
+eliom: TMP_CLIENT := $(shell mktemp -d)
 eliom: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@/server wiki/odoc-$@/client
 	mkdir -p wiki/odoc-$@/server wiki/odoc-$@/client
-	${MAKE} -C ${ELIOM_DIR} odoc
+	mkdir ${TMP_SERVER}/extensions/
+	ODOC_DIR=${TMP_SERVER}/ ${MAKE} -C ${ELIOM_DIR}/src/server odoc
 	 ## Server
 	ODOC_WIKI_SUBPROJECT=server \
-          ${OCAMLDOC} -g ${ODOC_WIKI} \
+          ${OCAMLDOC} ${addprefix -g ,${ODOC_WIKI}} \
           -d wiki/odoc-$@/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
-          -colorize-code ${ELIOM_SERVER_DOC}
+          -colorize-code ${addprefix -load ${TMP_SERVER}/,${ELIOM_SERVER_DOC}}
 	 ## Client
+	ODOC_DIR=${TMP_CLIENT}/ ${MAKE} -C ${ELIOM_DIR}/src/client odoc
 	OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
-	ODOC_WIKI_SUBPROJECT=client
-	  ${OCAMLDOC} -g ${ODOC_WIKI} \
+	ODOC_WIKI_SUBPROJECT=client \
+	  ${OCAMLDOC} ${addprefix -g , ${ODOC_WIKI}} \
           -d wiki/odoc-$@/client -intro ${ELIOM_DIR}/doc/client/indexdoc \
-          -colorize-code ${ELIOM_CLIENT_DOC}
+          -colorize-code ${addprefix -load ${TMP_CLIENT}/,${ELIOM_CLIENT_DOC}}
+	rm -r ${TMP_SERVER} ${TMP_CLIENT}
 
 ELIOM_VERSION ?= dev
 eliom.install:
@@ -197,7 +203,7 @@ OCLOSURE_DOC := ${OCLOSURE_DIR}/goog/goog.mli
 oclosure: ${ODOC_WIKI}
 	rm -rf wiki/odoc-$@
 	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -stars  -g ${ODOC_WIKI} -d wiki/odoc-$@ \
+	${OCAMLDOC} -stars  ${addprefix -g , ${ODOC_WIKI}} -d wiki/odoc-$@ \
 	-intro ${OCLOSURE_DIR}/doc/apiref-overview -colorize-code \
 	-pp "cpp -traditional-cpp" \
 	${OCLOSURE_INCLUDES} ${OCLOSURE_DOC}
