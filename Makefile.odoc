@@ -25,126 +25,46 @@ api: lwt js_of_ocaml tyxml server eliom oclosure
 api.install: lwt.install js_of_ocaml.install tyxml.install \
              server.install eliom.install oclosure.install
 
+deprecated_message=\
+	echo ;\
+	echo "Deprecated command! See: https://ocsigen.org/devarea/faq\#doc"; \
+	echo ;\
+	echo " - Go to $(1) sources and run: '$(2)'" ;\
+	echo " - To install copy '$(3)' into" ;\
+	echo "   '/var/www/data/apiwiki/$(1)/_version_$(4)' on ocsigen.org as www-data" ;\
+	echo "   after cleaning the target directory" ;\
+	echo
+
+
 ####### WIKIDOC LWT #######
 
-LWT_DOC := $(addprefix -load , \
-	     $(wildcard ${LWT_DIR}/_build/syntax/*.odoc) \
-	     $(wildcard ${LWT_DIR}/_build/src/*/*.odoc) \
-	   )
-
-LWTDOCINCLUDESDIR=${wildcard ${LWT_DIR}/_build/src/*} ${LWT_DIR}/_build/syntax
-LWTDOCINCLUDES= ${addprefix -I ,${LWTDOCINCLUDESDIR}} \
-	-package react,ssl,text
-
 .PHONY: lwt
-lwt: ${ODOC_WIKI}
-	rm -rf wiki/odoc-$@
-	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -g src/odoc_wiki/odoc_wiki.cma -d wiki/odoc-$@ \
-	  -intro ${LWT_DIR}/apiref-intro -colorize-code \
-	  ${LWTDOCINCLUDES} ${LWT_DOC}
-
-LWT_VERSION ?= dev
-lwt.install:
-	${call odoc_wiki_install,wiki/odoc-lwt,lwt,${LWT_VERSION}}
+lwt lwt.install:
+	@$(call deprecated_message,lwt,ocamlbuild lwt-api.wikidocdir/index.wiki,lwt-api.wikidocdir/*.wiki)
 
 ######## WIKIDOC JS_OF_OCAML ########
 
-DERIVING := "YES"
--include ${JS_OF_OCAML_DIR}/Makefile.filelist
-
-JS_OF_OCAML_DOC := ${addprefix ${JS_OF_OCAML_DIR}/,${DOC}}
-
 .PHONY:js_of_ocaml
-js_of_ocaml: ${ODOC_WIKI}
-	rm -rf wiki/odoc-$@
-	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -stars  ${addprefix -g ,${ODOC_WIKI}} -d wiki/odoc-$@ \
-	-intro ${JS_OF_OCAML_DIR}/doc/api-index \
-	-I ${JS_OF_OCAML_DIR}/lib -I ${JS_OF_OCAML_DIR}/lib/deriving_json \
-	-package lwt ${JS_OF_OCAML_DOC}
-
-JS_OF_OCAML_VERSION ?= dev
-js_of_ocaml.install:
-	${call odoc_wiki_install,wiki/odoc-js_of_ocaml,js_of_ocaml,${JS_OF_OCAML_VERSION}}
+js_of_ocaml js_of_ocaml.install:
+	@$(call deprecated_message,js_of_ocaml,make -C doc docwiki,doc/api-wiki/*.wiki)
 
 ######## WIKIDOC TYXML ########
 
-TYXML_DIR ?= ${SRCROOT}/tyxml
-
--include ${TYXML_DIR}/Makefile.filelist
-
-TYXML_DOC := ${addprefix ${TYXML_DIR}/,${DOC}}
-
 .PHONY: tyxml
-tyxml: ${ODOC_DUCE_WIKI}
-	rm -rf wiki/odoc-$@
-	mkdir -p wiki/odoc-$@
-	${OCAMLDUCEDOC} -stars ${addprefix -g ,${ODOC_DUCE_WIKI}} -d wiki/odoc-$@ \
-	  -intro ${TYXML_DIR}/doc/indexdoc -colorize-code \
-	  -package ocamlduce -I ${TYXML_DIR}/lib ${TYXML_DOC}
-
-TYXML_VERSION ?= dev
-tyxml.install:
-	${call odoc_wiki_install,wiki/odoc-tyxml,tyxml,${TYXML_VERSION}}
+tyxml tyxml.install:
+	@$(call deprecated_message,tyxml,make -C doc docwiki,doc/api-wiki/*.wiki)
 
 ####### WIKIDOC OCSIGENSERVER #######
 
--include ${SERVER_DIR}/src/Makefile.filelist
-
-SERVER_DOC := ${addprefix ${SERVER_DIR}/src/,${DOC} ${PLUGINS_DOC}}
-
 .PHONY: server
-server: ${ODOC_WIKI}
-	rm -rf wiki/odoc-$@
-	mkdir -p wiki/odoc-$@
-	OCAMLPATH=${SERVER_DIR}/src/files:${OCAMLPATH} \
-	  ${OCAMLDOC} ${addprefix -g ,${ODOC_WIKI}} \
-	  -d wiki/odoc-server -intro ${SERVER_DIR}/doc/indexdoc \
-	  -package ocsigenserver ${SERVER_DOC}
-
-SERVER_VERSION ?= dev
-server.install:
-	${call odoc_wiki_install,wiki/odoc-server,ocsigenserver,${SERVER_VERSION}}
+server server.install:
+	@$(call deprecated_message,ocsigenserver,make -C doc wikidoc,doc/api-wiki/*.wiki)
 
 ####### WIKIDOC ELIOM #######
 
--include ${ELIOM_DIR}/src/server/Makefile.filelist
-
-
-ELIOM_SERVER_DOC := ${DOC:.mli=.odoc}
-
--include ${ELIOM_DIR}/src/client/Makefile.filelist
-
-ELIOM_CLIENT_DOC := ${DOC:.mli=.odoc}
-
-.PHONY:eliom
-eliom: TMP_SERVER := $(shell mktemp -d)
-eliom: TMP_CLIENT := $(shell mktemp -d)
-eliom: ${ODOC_WIKI}
-	rm -rf wiki/odoc-$@/server wiki/odoc-$@/client
-	mkdir -p wiki/odoc-$@/server wiki/odoc-$@/client
-	mkdir ${TMP_SERVER}/extensions/
-	ODOC_DIR=${TMP_SERVER}/ ${MAKE} -C ${ELIOM_DIR}/src/server odoc
-	 ## Server
-	ODOC_WIKI_SUBPROJECT=server \
-          ${OCAMLDOC} ${addprefix -g ,${ODOC_WIKI}} \
-          -d wiki/odoc-$@/server -intro ${ELIOM_DIR}/doc/server/indexdoc \
-          -colorize-code ${addprefix -load ${TMP_SERVER}/,${ELIOM_SERVER_DOC}}
-	 ## Client
-	ODOC_DIR=${TMP_CLIENT}/ ${MAKE} -C ${ELIOM_DIR}/src/client odoc
-	OCAMLPATH=${ELIOM_DIR}/src/files:${OCAMLPATH} \
-	ODOC_WIKI_SUBPROJECT=client \
-	  ${OCAMLDOC} ${addprefix -g , ${ODOC_WIKI}} \
-          -d wiki/odoc-$@/client -intro ${ELIOM_DIR}/doc/client/indexdoc \
-          -colorize-code ${addprefix -load ${TMP_CLIENT}/,${ELIOM_CLIENT_DOC}}
-	rm -r ${TMP_SERVER} ${TMP_CLIENT}
-
-ELIOM_VERSION ?= dev
-eliom.install:
-	${call odoc_wiki_install,wiki/odoc-eliom,eliom,${ELIOM_VERSION}}
-	sudo -u www-data cp ${ELIOM_DIR}/doc/index.wiki \
-	    /var/www/data/apiwiki/eliom/${ELIOM_VERSION}/index.wiki
+.PHONY: eliom
+eliom eliom.install:
+	@$(call deprecated_message,eliom,make -C doc/server wikidoc; make -C doc/client wikidoc,doc/server/api-wiki/*.wiki and doc/client/api-wiki/*.wiki,/server and .../client)
 
 ######## WIKIDOC OCSIGEN 1.3 ########
 
@@ -190,27 +110,9 @@ eliom.install:
 
 ######## WIKIDOC OCLOSURE ########
 
-OCLOSURE_INCLUDESDIR := async date disposable events fx gdom \
-	geditor geditor/plugins ggraphics i18n math positioning \
-	spell structs timer ui ui/editor ui/tree userAgent
-OCLOSURE_INCLUDES := \
-	${addprefix -I ${OCLOSURE_DIR}/,${OCLOSURE_INCLUDESDIR}} \
-	-package js_of_ocaml
-
-OCLOSURE_DOC := ${OCLOSURE_DIR}/goog/goog.mli
-
 .PHONY: oclosure
-oclosure: ${ODOC_WIKI}
-	rm -rf wiki/odoc-$@
-	mkdir -p wiki/odoc-$@
-	${OCAMLDOC} -stars  ${addprefix -g , ${ODOC_WIKI}} -d wiki/odoc-$@ \
-	-intro ${OCLOSURE_DIR}/doc/apiref-overview -colorize-code \
-	-pp "cpp -traditional-cpp" \
-	${OCLOSURE_INCLUDES} ${OCLOSURE_DOC}
-
-OCLOSURE_VERSION ?= dev
-oclosure.install:
-	${call odoc_wiki_install,wiki/odoc-oclosure,oclosure,${OCLOSURE_VERSION}}
+oclosure oclosure.install:
+	@$(call deprecated_message,oclosure,make -C goog wikidoc,wikidoc/*.wiki)
 
 
 ####

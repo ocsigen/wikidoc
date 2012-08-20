@@ -18,6 +18,7 @@ OCAMLLEX     ?= ocamllex
 
 OCAMLDOCPATH ?= $(shell ${OCAMLFIND} printconf stdlib)/ocamldoc
 COMPILERLIBSPARSING ?= \
+	-I $(shell ${OCAMLFIND} printconf stdlib)/compiler-libs/ \
 	-I $(shell ${OCAMLFIND} printconf stdlib)/compiler-libs/parsing \
 	-I $(shell ${OCAMLFIND} printconf stdlib)/compiler-libs/typing
 
