@@ -130,7 +130,7 @@ let string_of_class_params ?(margin = default_margin) c =
   let fmt = Format.formatter_of_buffer b in
   Format.pp_set_margin fmt margin;
   let rec iter = function
-      Types.Tcty_fun (label, t, ctype) ->
+      Types.Cty_fun (label, t, ctype) ->
         let parent = is_arrow_type t in
 	let ty =
 	  if Odoc_misc.is_optional label then
@@ -148,8 +148,8 @@ let string_of_class_params ?(margin = default_margin) c =
 	  (Printtyp.type_scheme_max ~b_reset_names:false) ty
           (if parent then ")" else "");
         iter ctype
-    | Types.Tcty_signature _
-    | Types.Tcty_constr _ -> ()
+    | Types.Cty_signature _
+    | Types.Cty_constr _ -> ()
   in
   iter c.Odoc_class.cl_type;
   Format.pp_print_flush fmt ();
@@ -161,15 +161,15 @@ exception Use_code of string
 let simpl_module_type ?code t =
   let rec iter t =
     match t with
-      Types.Tmty_ident p -> t
-    | Types.Tmty_signature _ ->
+      Types.Mty_ident p -> t
+    | Types.Mty_signature _ ->
         (
          match code with
-           None -> Types.Tmty_signature []
+           None -> Types.Mty_signature []
          | Some s -> raise (Use_code s)
         )
-    | Types.Tmty_functor (id, mt1, mt2) ->
-        Types.Tmty_functor (id, iter mt1, iter mt2)
+    | Types.Mty_functor (id, mt1, mt2) ->
+        Types.Mty_functor (id, iter mt1, iter mt2)
   in
   iter t
 
