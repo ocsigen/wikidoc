@@ -41,11 +41,11 @@ module String = struct
     in
     aux 0
 
-  let remove_re = Netstring_pcre.regexp "(?s-m)\\A\\s*(\\S(.*\\S)?)\\s*\\z"
+  let remove_re = Pcre.regexp "(?s-m)\\A\\s*(\\S(.*\\S)?)\\s*\\z"
   let remove_spaces s =
-    match Netstring_pcre.string_match remove_re s 0 with
+    match (Pcre.extract_opt ~rex:remove_re s).(1) with
       | None -> s
-      | Some r -> Netstring_pcre.matched_group r 1 s
+      | Some r -> r
 
 end
 

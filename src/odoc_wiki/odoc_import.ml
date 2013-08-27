@@ -130,7 +130,11 @@ let string_of_class_params ?(margin = default_margin) c =
   let fmt = Format.formatter_of_buffer b in
   Format.pp_set_margin fmt margin;
   let rec iter = function
+#if ocaml_version < (4, 00)
       Types.Tcty_fun (label, t, ctype) ->
+#else
+      Types.Cty_fun (label, t, ctype) ->
+#endif
         let parent = is_arrow_type t in
 	let ty =
 	  if Odoc_misc.is_optional label then
@@ -148,8 +152,13 @@ let string_of_class_params ?(margin = default_margin) c =
 	  (Printtyp.type_scheme_max ~b_reset_names:false) ty
           (if parent then ")" else "");
         iter ctype
+#if ocaml_version < (4, 00)
     | Types.Tcty_signature _
     | Types.Tcty_constr _ -> ()
+#else
+    | Types.Cty_signature _
+    | Types.Cty_constr _ -> ()
+#endif
   in
   iter c.Odoc_class.cl_type;
   Format.pp_print_flush fmt ();
@@ -161,6 +170,7 @@ exception Use_code of string
 let simpl_module_type ?code t =
   let rec iter t =
     match t with
+#if ocaml_version < (4, 00)
       Types.Tmty_ident p -> t
     | Types.Tmty_signature _ ->
         (
@@ -170,7 +180,19 @@ let simpl_module_type ?code t =
         )
     | Types.Tmty_functor (id, mt1, mt2) ->
         Types.Tmty_functor (id, iter mt1, iter mt2)
+#else
+      Types.Mty_ident p -> t
+    | Types.Mty_signature _ ->
+        (
+         match code with
+           None -> Types.Mty_signature []
+         | Some s -> raise (Use_code s)
+        )
+    | Types.Mty_functor (id, mt1, mt2) ->
+        Types.Mty_functor (id, iter mt1, iter mt2)
+#endif
   in
+
   iter t
 
 let string_of_module_type ?code ?(complete=false) ?(margin = default_margin) t =

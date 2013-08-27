@@ -19,6 +19,28 @@ open Exception
 open Class
 open Module
 
+module Conf = struct
+#if ocaml_version < (4, 00)
+let colorize_code = Args.colorize_code
+let out_file = Odoc_args.out_file
+let html_short_functors = Odoc_info.Args.html_short_functors
+let with_parameter_list = Args.with_parameter_list
+let target_dir = Args.target_dir
+let title = Args.title
+let intro_file = Odoc_info.Args.intro_file
+let index_only = Args.index_only
+#else
+let colorize_code = Odoc_html.colorize_code
+let out_file = Odoc_global.out_file
+let html_short_functors = Odoc_html.html_short_functors
+let with_parameter_list = Odoc_html.with_parameter_list
+let target_dir = Global.target_dir
+let title = Global.title
+let intro_file = Odoc_info.Global.intro_file
+let index_only = Odoc_html.index_only
+#endif
+end
+
 let remove_spaces s beg endd =
   let rec find_not_space s i step =
     if (i > endd) || (beg > i)
@@ -61,6 +83,7 @@ let get_subproject () = match !subproject with
 (** The functions used for naming files and html marks.*)
 module Naming =
   struct
+
     include Odoc_html.Naming
 
     (** Return the wiki ident for the given module or class name.*)
@@ -128,6 +151,7 @@ module Naming =
     let file_type_class_complete_target name =
       let f = type_prefix^name^".wiki" in
       f
+
   end
 
 module StringSet = Odoc_html.StringSet
@@ -172,7 +196,7 @@ class virtual text =
       bs b (self#escape s)
 
     method html_of_Code b code =
-      if !Args.colorize_code
+      if !Conf.colorize_code
       then begin
 (* not supported by current version of Ocsimore:
         bs b "<<inlinecode language='ocaml'|";
@@ -217,7 +241,7 @@ class virtual text =
               | Some last -> String.sub s first ((last-first)+1)
         in
         fun b code ->
-          if !Args.colorize_code
+          if !Conf.colorize_code
           then begin
             bs b "\n<<code language='ocaml'|";
             bs b (self#escape_nonwiki (remove_useless_newlines code));
@@ -344,6 +368,10 @@ class virtual text =
             | Odoc_info.RK_attribute -> "attribute " ^ name
             | Odoc_info.RK_method -> "method " ^ name
             | Odoc_info.RK_section t -> "section " ^ name
+#if ocaml_version >= (4, 00)
+            | Odoc_info.RK_recfield -> "recfield " ^ name
+            | Odoc_info.RK_const -> "const " ^ name
+#endif
           in
 	  bp b "<<a_api%s" (get_subproject ());
 	  begin match text_opt with
@@ -375,7 +403,11 @@ class virtual text =
              self#html_of_info_first_sentence b m.m_info;
            with
              Not_found ->
+#if ocaml_version < (4, 00)
                Odoc_messages.pwarning (Odoc_messages.cross_module_not_found name);
+#else
+               Odoc_global.pwarning (Odoc_messages.cross_module_not_found name);
+#endif
                bp b "%s|" name
           );
           bs b "|\n"
@@ -611,6 +643,8 @@ let newline_to_indented_br ?(indent_first=true) ?(len = 0) ~indent s =
   (* done; *)
   (* Buffer.contents b *)
 
+module Generator = struct
+
 (** This class is used to create objects which can generate a simple wiki documentation. *)
 class wiki =
   object (self)
@@ -634,10 +668,10 @@ class wiki =
     val mutable known_modules_names = StringSet.empty
 
     method index_prefix =
-      if !Odoc_args.out_file = Odoc_messages.default_out_file then
+      if !Conf.out_file = Odoc_messages.default_out_file then
         "index"
       else
-        Filename.basename !Odoc_args.out_file
+        Filename.basename !Conf.out_file
 
     (** The main file. *)
     method index =
@@ -890,7 +924,7 @@ class wiki =
           bs b (self#create_fully_qualified_module_idents_links father a.ma_name);
           bs b ">>"
       | Module_functor (p, k) ->
-          if !Odoc_info.Args.html_short_functors then
+          if !Conf.html_short_functors then
             bs b " "
           else
             bs b "<<span class=\"odocwiki_sig_block\"|";
@@ -898,13 +932,13 @@ class wiki =
           (
            match k with
              Module_functor _ -> ()
-           | _ when !Odoc_info.Args.html_short_functors ->
+           | _ when !Conf.html_short_functors ->
                bs b ": "
            | _ -> ()
           );
 	  bp b "\\\\%s  " indent;
           self#html_of_module_kind b father ?modu ~indent k;
-          if not !Odoc_info.Args.html_short_functors then
+          if not !Conf.html_short_functors then
             bs b ">>"
       | Module_apply (k1, k2) ->
           (* TODO: l'application n'est pas correcte dans un .mli.
@@ -943,7 +977,7 @@ class wiki =
 
     method html_of_module_parameter b ~indent father p =
       let (s_functor,s_arrow) =
-        if !Odoc_info.Args.html_short_functors then
+        if !Conf.html_short_functors then
           "", ""
         else
           indent^(self#keyword "functor")^" ", (self#delimiter "-~>")^" "
@@ -1044,7 +1078,7 @@ class wiki =
          None -> bp b "<<span class=\"odocwiki_name\"|%s>>" (self#escape (Name.simple v.val_name))
        | Some c ->
            let file = Naming.file_code_value_complete_target v in
-           self#output_code v.val_name (Filename.concat !Args.target_dir file) c;
+           self#output_code v.val_name (Filename.concat !Conf.target_dir file) c;
 	   bp b "<<a_api_code%s | value %s >>" (get_subproject ()) v.val_name
       );
       bs b (" "^(self#delimiter "~:")^" ");
@@ -1055,7 +1089,7 @@ class wiki =
       bs b ">>";
       self#html_of_info b v.val_info;
       (
-       if !Args.with_parameter_list then
+       if !Conf.with_parameter_list then
          self#html_of_parameter_list b (Name.father v.val_name) v.val_parameters
        else
          self#html_of_described_parameter_list b (Name.father v.val_name) v.val_parameters
@@ -1209,7 +1243,7 @@ class wiki =
 	    bp b "<<span class=\"odocwiki_name\"|%s>>" (Name.simple a.att_value.val_name);
 	| Some c ->
           let file = Naming.file_code_attribute_complete_target a in
-          self#output_code a.att_value.val_name (Filename.concat !Args.target_dir file) c;
+          self#output_code a.att_value.val_name (Filename.concat !Conf.target_dir file) c;
 	  bp b "<<a_api_code%s text=\"%s\" | attribute %s >>"
 	    (get_subproject ())
 	    (Name.simple a.att_value.val_name) a.att_value.val_name;
@@ -1239,8 +1273,7 @@ class wiki =
          None -> bp b "<<span class=\"odocwiki_name\"|%s>>" (Name.simple m.met_value.val_name)
        | Some c ->
            let file = Naming.file_code_method_complete_target m in
-           self#output_code m.met_value.val_name (Filename.concat !Args.target_dir file) c;
-
+           self#output_code m.met_value.val_name (Filename.concat !Conf.target_dir file) c;
 	   bp b "<<a_api_code%s text=\"%s\" | method %s >>"
 	     (get_subproject ())
 	     (Name.simple m.met_value.val_name) m.met_value.val_name;
@@ -1252,7 +1285,7 @@ class wiki =
       bs b ">>";
       self#html_of_info b m.met_value.val_info;
       (
-       if !Args.with_parameter_list then
+       if !Conf.with_parameter_list then
          self#html_of_parameter_list b
            module_name m.met_value.val_parameters
        else
@@ -1395,7 +1428,7 @@ class wiki =
       );
       (
        match m.m_kind with
-         Module_functor _ when !Odoc_info.Args.html_short_functors  ->
+         Module_functor _ when !Conf.html_short_functors  ->
            ()
        | _ -> bs b (" "^(self#delimiter "~:")^" ")
       );
@@ -1738,7 +1771,7 @@ class wiki =
               ('a -> string) -> string -> string -> unit =
     fun target_kind elements name info target title simple_file ->
       try
-        let chanout = open_out (Filename.concat !Args.target_dir simple_file) in
+        let chanout = open_out (Filename.concat !Conf.target_dir simple_file) in
         let b = new_buf () in
         bp b "=%s=\n" title;
 
@@ -1801,7 +1834,7 @@ class wiki =
       let wiki_file = Naming.wiki_file cl.cl_name in
       let type_file = Naming.file_type_class_complete_target cl.cl_name in
       try
-        let chanout = open_out (Filename.concat !Args.target_dir wiki_file) in
+        let chanout = open_out (Filename.concat !Conf.target_dir wiki_file) in
         let b = new_buf () in
         bs b "=";
         bs b (Odoc_messages.clas^" ");
@@ -1825,7 +1858,7 @@ class wiki =
         (* generate the file with the complete class type *)
         self#output_class_type
           cl.cl_name
-          (Filename.concat !Args.target_dir type_file)
+          (Filename.concat !Conf.target_dir type_file)
           cl.cl_type
       with
         Sys_error s ->
@@ -1837,7 +1870,7 @@ class wiki =
       let wiki_file = Naming.wiki_file clt.clt_name in
       let type_file = Naming.file_type_class_complete_target clt.clt_name in
       try
-        let chanout = open_out (Filename.concat !Args.target_dir wiki_file) in
+        let chanout = open_out (Filename.concat !Conf.target_dir wiki_file) in
         let b = new_buf () in
         bs b "=";
         bs b (Odoc_messages.class_type^" ");
@@ -1859,7 +1892,7 @@ class wiki =
         (* generate the file with the complete class type *)
         self#output_class_type
           clt.clt_name
-          (Filename.concat !Args.target_dir type_file)
+          (Filename.concat !Conf.target_dir type_file)
           clt.clt_type
       with
         Sys_error s ->
@@ -1871,7 +1904,7 @@ class wiki =
       try
         let wiki_file = Naming.wiki_file mt.mt_name in
         let type_file = Naming.file_type_module_complete_target mt.mt_name in
-        let chanout = open_out (Filename.concat !Args.target_dir wiki_file) in
+        let chanout = open_out (Filename.concat !Conf.target_dir wiki_file) in
         let b = new_buf () in
         bp b "=";
         bs b (Odoc_messages.module_type^" ");
@@ -1914,7 +1947,7 @@ class wiki =
          | Some mty ->
              self#output_module_type
                mt.mt_name
-               (Filename.concat !Args.target_dir type_file)
+               (Filename.concat !Conf.target_dir type_file)
                mty
         )
       with
@@ -1929,7 +1962,7 @@ class wiki =
         let wiki_file = Naming.wiki_file modu.m_name in
         let type_file = Naming.file_type_module_complete_target modu.m_name in
         let code_file = Naming.file_code_module_complete_target modu.m_name in
-        let chanout = open_out (Filename.concat !Args.target_dir wiki_file) in
+        let chanout = open_out (Filename.concat !Conf.target_dir wiki_file) in
         let b = new_buf () in
         bs b "=";
         if modu.m_text_only then
@@ -1984,7 +2017,7 @@ class wiki =
         (* generate the file with the complete module type *)
         self#output_module_type
           modu.m_name
-          (Filename.concat !Args.target_dir type_file)
+          (Filename.concat !Conf.target_dir type_file)
           modu.m_type;
 
         match modu.m_code with
@@ -1992,7 +2025,7 @@ class wiki =
         | Some code ->
             self#output_code
               modu.m_name
-              (Filename.concat !Args.target_dir code_file)
+              (Filename.concat !Conf.target_dir code_file)
               code
       with
         Sys_error s ->
@@ -2002,15 +2035,15 @@ class wiki =
        @raise Failure if an error occurs.*)
     method generate_index module_list =
       try
-        let chanout = open_out (Filename.concat !Args.target_dir self#index) in
+        let chanout = open_out (Filename.concat !Conf.target_dir self#index) in
         let b = new_buf () in
-        let title = match !Args.title with None -> "" | Some t -> self#escape t in
+        let title = match !Conf.title with None -> "" | Some t -> self#escape t in
         bs b "=";
         bs b title;
         bs b "=\n" ;
         let info = Odoc_info.apply_opt
             (Odoc_info.info_of_comment_file module_list)
-            !Odoc_info.Args.intro_file
+            !Conf.intro_file
         in
         (
          match info with
@@ -2031,7 +2064,7 @@ class wiki =
        @raise Failure if an error occurs.*)
     method generate_menu module_list =
       try
-        let chanout = open_out (Filename.concat !Args.target_dir self#menu) in
+        let chanout = open_out (Filename.concat !Conf.target_dir self#menu) in
         let b = new_buf () in
 	let current_level = ref "" in
 	let module M = Odoc_info in
@@ -2073,7 +2106,7 @@ class wiki =
 	in
         let info = Odoc_info.apply_opt
             (Odoc_info.info_of_comment_file module_list)
-            !Odoc_info.Args.intro_file
+            !Conf.intro_file
         in
 	(
 	 match info with
@@ -2243,7 +2276,7 @@ class wiki =
           known_modules_names
           module_types ;
       (* generate html for each module *)
-      if not !Args.index_only then
+      if not !Conf.index_only then
         self#generate_elements self#generate_for_module module_list ;
 
       try
@@ -2272,6 +2305,16 @@ class wiki =
         )
   end
 
+end
 
-let doc_generator = ((new wiki) :> Odoc_args.doc_generator)
+#if ocaml_version < (4, 00)
+
+let doc_generator = ((new Generator.wiki) :> Odoc_args.doc_generator)
 let _ = Odoc_args.set_doc_generator (Some doc_generator)
+
+#else
+
+module type Wiki_generator = module type of Generator
+
+#endif
+
