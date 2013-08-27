@@ -2305,6 +2305,12 @@ class wiki =
         )
   end
 
+  class generator =
+    object
+      val wiki = new wiki
+      method generate = wiki#generate
+    end
+
 end
 
 #if ocaml_version < (4, 00)
@@ -2315,6 +2321,9 @@ let _ = Odoc_args.set_doc_generator (Some doc_generator)
 #else
 
 module type Wiki_generator = module type of Generator
+let doc_generator = (module Generator : Odoc_gen.Base)
+let _ = Odoc_args.set_generator (Odoc_gen.Base (module Generator : Odoc_gen.Base))
 
 #endif
+
 
