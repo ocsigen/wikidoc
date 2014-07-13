@@ -1,0 +1,15 @@
+opam-version: "1"
+maintainer: "dev@ocsigen.org"
+version: "dev"
+build: [
+  [ make ]
+  [ make "install" ]
+]
+remove: [
+  [ "ocamlfind" "remove" "wikidoc" ]
+  [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
+]
+ocaml-version: [= "4.01.0"]
+depends: [
+  "ocamlfind"
+]
