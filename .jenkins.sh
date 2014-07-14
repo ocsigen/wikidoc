@@ -5,6 +5,7 @@ opam install --verbose wikidoc
 
 do_build_doc () {
   # Nothing...
+  echo -n
 }
 
 do_remove () {
