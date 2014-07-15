@@ -12,6 +12,7 @@ remove: [
 ocaml-version: [= "4.01.0"]
 depends: [
   "base-threads"
+  "base-unix"
   "ocamlfind"
   "optcomp"
   "lwt"
