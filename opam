@@ -2,6 +2,7 @@ opam-version: "1"
 maintainer: "dev@ocsigen.org"
 version: "dev"
 build: [
+  [ "sh" "./configure" "--prefix" prefix ]
   [ make ]
   [ make "install" ]
 ]
