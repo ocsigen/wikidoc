@@ -136,12 +136,12 @@ let string_of_class_params ?(margin = default_margin) c =
       Types.Cty_fun (label, t, ctype) ->
 #endif
         let parent = is_arrow_type t in
-	let ty =
-	  if Odoc_misc.is_optional label then
+        let ty =
+          if Odoc_misc.is_optional label then
             Odoc_misc.remove_option t
           else
             t in
-	Printtyp.mark_loops t;
+        Printtyp.mark_loops t;
         Format.fprintf fmt "@[<hov 2>%s%s%a%s@] ->@ "
           (
            match label with
@@ -149,7 +149,7 @@ let string_of_class_params ?(margin = default_margin) c =
            | s -> s^":"
           )
           (if parent then "(" else "") (* TODO open_box ?*)
-	  (Printtyp.type_scheme_max ~b_reset_names:false) ty
+          (Printtyp.type_scheme_max ~b_reset_names:false) ty
           (if parent then ")" else "");
         iter ctype
 #if ocaml_version < (4, 00)

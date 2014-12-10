@@ -74,7 +74,7 @@ let rec split char s =
 let subproject =
   ref (try Some (Sys.getenv "ODOC_WIKI_SUBPROJECT") with Not_found -> None)
 let _ = Odoc_args.add_option ("-subproject",
-			      Arg.String (fun s -> subproject := Some s),
+                              Arg.String (fun s -> subproject := Some s),
                               "Add the subproject parameter to the generated <<a_api ...>>")
 let get_subproject () = match !subproject with
 | None -> ""
@@ -322,18 +322,18 @@ class virtual text =
       let label1 = self#create_title_label (n, label_opt, t) in
       bs b "\n";
       if n <= 6 then (
-	bsn n b "=";
-	bs b "@@id=\"";
-	bs b (Naming.label_target label1);
-	bs b "\"@@"
+        bsn n b "=";
+        bs b "@@id=\"";
+        bs b (Naming.label_target label1);
+        bs b "\"@@"
       ) else (
-	bp b "<<div class=\"h%d\"| " n
+        bp b "<<div class=\"h%d\"| " n
       );
       self#html_of_text b t;
       if n <= 6 then
-	bsn n b "="
+        bsn n b "="
       else
-	bs b ">>";
+        bs b ">>";
       bs b "\n"
 
     method html_of_Latex b s = bs b s
@@ -373,10 +373,10 @@ class virtual text =
             | Odoc_info.RK_const -> "const " ^ name
 #endif
           in
-	  bp b "<<a_api%s" (get_subproject ());
-	  begin match text_opt with
+          bp b "<<a_api%s" (get_subproject ());
+          begin match text_opt with
           | Some text -> bp b " text=\"%a\"" self#html_of_text text
-	  | None -> () end;
+          | None -> () end;
           bp b " | %s >>" target;
 
     method html_of_Superscript b t =
@@ -634,12 +634,12 @@ let newline_to_indented_br ?(indent_first=true) ?(len = 0) ~indent s =
   (* for i = 0 to len - 1 do *)
     (* match s.[i] with *)
       (* '\n' -> *)
-	(* skip_space := true; *)
-	(* bp b "\\\\{{{%s}}}" indent *)
+        (* skip_space := true; *)
+        (* bp b "\\\\{{{%s}}}" indent *)
     (* | ' ' | '\t' when !skip_space -> () *)
     (* | c -> *)
-	(* skip_space := false; *)
-	(* Buffer.add_char b c *)
+        (* skip_space := false; *)
+        (* Buffer.add_char b c *)
   (* done; *)
   (* Buffer.contents b *)
 
@@ -746,7 +746,7 @@ class wiki =
       try
         let chanout = open_out file in
         let b = new_buf () in
-	(* bs b in_title; *)
+        (* bs b in_title; *)
         self#html_of_code b code;
         Buffer.output_buffer chanout b;
         close_out chanout
@@ -757,13 +757,13 @@ class wiki =
 
     method colorize_fully_qualified_idents name =
       String.concat "<<span class=\"ocsforge_color_delimiter\"| . >>"
-	(List.map
-	   (fun n ->
-	     if 'A' < n.[0] && n.[0] < 'Z' then
-	       "<<span class=\"ocsforge_color_uid\"|"^n^">>"
-	     else
-	       "<<span class=\"ocsforge_color_lid\"|"^n^">>")
-	   (split '.' name))
+        (List.map
+           (fun n ->
+             if 'A' < n.[0] && n.[0] < 'Z' then
+               "<<span class=\"ocsforge_color_uid\"|"^n^">>"
+             else
+               "<<span class=\"ocsforge_color_lid\"|"^n^">>")
+           (split '.' name))
 
 
     (** Take a string and return the string where fully qualified
@@ -778,32 +778,32 @@ class wiki =
             match_s
             rel
         in
-	if raw then s_final
-	else if StringSet.mem match_s known_types_names then
-	  "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | type " ^ match_s ^ " >>"
+        if raw then s_final
+        else if StringSet.mem match_s known_types_names then
+          "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | type " ^ match_s ^ " >>"
         else if StringSet.mem match_s known_classes_names then
-	  "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | class type " ^ match_s ^ " >>"
+          "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | class type " ^ match_s ^ " >>"
         else
-	  self#colorize_fully_qualified_idents s_final
+          self#colorize_fully_qualified_idents s_final
       in
       let s2 = Str.global_substitute
           (Str.regexp "\\([A-Z]\\([a-zA-Z_'0-9]\\)*\\.\\)+\\([a-z][a-zA-Z_'0-9]*\\)")
           f
-	  s
+          s
       in
       if raw then s2
       else
-	let s3 = Str.global_substitute
-	  (Str.regexp "\\((\\|)\\|->\\)")
-	  (fun str_t -> "<<span class=\"ocsforge_color_delimiter\"| "^Str.matched_string str_t^" >>")
+        let s3 = Str.global_substitute
+          (Str.regexp "\\((\\|)\\|->\\)")
+          (fun str_t -> "<<span class=\"ocsforge_color_delimiter\"| "^Str.matched_string str_t^" >>")
           s2
-	in
-	let s4 = Str.global_substitute
-	  (Str.regexp "\\??\\([a-z_][a-zA-Z_'0-9]*:\\)")
-	  (fun str_t -> "<<span class=\"ocsforge_color_label\"| "^Str.matched_string str_t^" >>")
+        in
+        let s4 = Str.global_substitute
+          (Str.regexp "\\??\\([a-z_][a-zA-Z_'0-9]*:\\)")
+          (fun str_t -> "<<span class=\"ocsforge_color_label\"| "^Str.matched_string str_t^" >>")
           s3
-	in
-	s4
+        in
+        s4
 
     (** Take a string and return the string where fully qualified module idents
        have been replaced by links to the module referenced by the ident.*)
@@ -817,7 +817,7 @@ class wiki =
             rel
         in
         if StringSet.mem match_s known_modules_names then
-	  "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | module " ^ match_s ^ " >>"
+          "<<a_api"^get_subproject ()^" text=\"" ^ s_final ^ "\" | module " ^ match_s ^ " >>"
         else
           "<<span class=\"ocsforge_color_uid\"|"^s_final^">>"
       in
@@ -831,11 +831,11 @@ class wiki =
     (** Print html code to display a [Types.type_expr]. *)
     method html_of_type_expr b ~init_len ~indent m_name t =
       let s =
-	Odoc_info.remove_ending_newline
-	  (Odoc_import.string_of_type_expr
-	     ~margin:(Odoc_import.default_margin - String.length indent) t) in
+        Odoc_info.remove_ending_newline
+          (Odoc_import.string_of_type_expr
+             ~margin:(Odoc_import.default_margin - String.length indent) t) in
       let s = self#simple_escape s in
-      let raw = self#create_fully_qualified_idents_links m_name	~raw:true s in
+      let raw = self#create_fully_qualified_idents_links m_name        ~raw:true s in
       let s2, _ = newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
       if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3
@@ -843,12 +843,12 @@ class wiki =
     (** Print html code to display a [Types.type_expr list]. *)
     method html_of_type_expr_list ?par b ~init_len ~indent m_name sep l =
       let s =
-	Odoc_import.string_of_type_list
-	  ~margin:(Odoc_import.default_margin - String.length indent)
-	  ?par sep l in
-      let raw = self#create_fully_qualified_idents_links m_name	~raw:true s in
+        Odoc_import.string_of_type_list
+          ~margin:(Odoc_import.default_margin - String.length indent)
+          ?par sep l in
+      let raw = self#create_fully_qualified_idents_links m_name        ~raw:true s in
       let s2, _ =
-	newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
+        newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
       if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3
 
@@ -856,25 +856,25 @@ class wiki =
        of a class of class type. *)
     method html_of_class_type_param_expr_list b ~init_len ~indent m_name l =
       let s =
-	Odoc_import.string_of_class_type_param_list
-	  ~margin:(Odoc_import.default_margin - String.length indent)
-	  l in
+        Odoc_import.string_of_class_type_param_list
+          ~margin:(Odoc_import.default_margin - String.length indent)
+          l in
       let raw = self#create_fully_qualified_idents_links m_name ~raw:true s in
       let s2, len =
-	newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
+        newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
       if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|[%s]>>" s3;
       len
 
     method html_of_class_parameter_list b ~init_len ~indent father c =
       let s =
-	Odoc_import.string_of_class_params
-	  ~margin:(Odoc_import.default_margin - String.length indent)
-	  c in
+        Odoc_import.string_of_class_params
+          ~margin:(Odoc_import.default_margin - String.length indent)
+          c in
       let s = Odoc_info.remove_ending_newline s in
       let raw = self#create_fully_qualified_idents_links father ~raw:true s in
       let s2, len =
-	newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
+        newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
       let s3 = self#create_fully_qualified_idents_links father s2 in
       if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3;
       len
@@ -882,12 +882,12 @@ class wiki =
     (** Print html code to display a list of type parameters for the given type.*)
     method html_of_type_expr_param_list b ~init_len ~indent m_name t =
       let s =
-	Odoc_import.string_of_type_param_list
-	  ~margin:(Odoc_import.default_margin - String.length indent)
-	  t in
-      let raw = self#create_fully_qualified_idents_links m_name	~raw:true s in
+        Odoc_import.string_of_type_param_list
+          ~margin:(Odoc_import.default_margin - String.length indent)
+          t in
+      let raw = self#create_fully_qualified_idents_links m_name        ~raw:true s in
       let s2, len =
-	newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
+        newline_to_indented_br ~len:(init_len + String.length raw) ~indent s in
       let s3 = self#create_fully_qualified_idents_links m_name s2 in
       if s3 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s3;
       len
@@ -895,12 +895,12 @@ class wiki =
     (** Print html code to display a [Types.module_type]. *)
     method html_of_module_type b ?code ~init_len ~indent m_name t =
       let s =
-	Odoc_info.remove_ending_newline
-	  (Odoc_import.string_of_module_type
-	     ~margin:(Odoc_import.default_margin - String.length indent)
-	     ?code t) in
+        Odoc_info.remove_ending_newline
+          (Odoc_import.string_of_module_type
+             ~margin:(Odoc_import.default_margin - String.length indent)
+             ?code t) in
       let s2, _ =
-	newline_to_indented_br ~len:(init_len + String.length s) ~indent s in
+        newline_to_indented_br ~len:(init_len + String.length s) ~indent s in
       if s2 <> "" then bp b "<<span class=\"odocwiki_type\"|%s>>" s2
 
 
@@ -916,9 +916,9 @@ class wiki =
                List.iter (self#html_of_module_element b ~indent:(indent ^ "  ") ~pre:false father) eles;
                bs b ">>"
            | Some m ->
-	       bp b "<<a_api%s text=\"..\" | module %s >>" (get_subproject ()) m.m_name
+               bp b "<<a_api%s text=\"..\" | module %s >>" (get_subproject ()) m.m_name
           );
-	  bs b (self#keyword "end")
+          bs b (self#keyword "end")
       | Module_alias a ->
           bs b "<<span class=\"odocwiki_type\"|";
           bs b (self#create_fully_qualified_module_idents_links father a.ma_name);
@@ -936,7 +936,7 @@ class wiki =
                bs b ": "
            | _ -> ()
           );
-	  bp b "\\\\%s  " indent;
+          bp b "\\\\%s  " indent;
           self#html_of_module_kind b father ?modu ~indent k;
           if not !Conf.html_short_functors then
             bs b ">>"
@@ -949,14 +949,14 @@ class wiki =
           bs b (self#delimiter ")")
       | Module_with (k, s) ->
           (* TODO: à modifier quand Module_with sera plus détaillé *)
-	  let s2 = self#create_fully_qualified_module_idents_links father s in
-	  let s3, _ = newline_to_indented_br ~indent_first:false ~indent s2 in
-	  (
-	   try ignore (String.index s2 '\n'); bp b "\\\\  %s" indent
-	   with Not_found -> ()
-	  );
+          let s2 = self#create_fully_qualified_module_idents_links father s in
+          let s3, _ = newline_to_indented_br ~indent_first:false ~indent s2 in
+          (
+           try ignore (String.index s2 '\n'); bp b "\\\\  %s" indent
+           with Not_found -> ()
+          );
           self#html_of_module_type_kind b father ~indent ?modu k;
-	  bp b "<<span class=\"odocwiki_type\"|%s%s>>" indent s3
+          bp b "<<span class=\"odocwiki_type\"|%s%s>>" indent s3
       | Module_constraint (k, tk) ->
           (* TODO: on affiche quoi ? *)
           self#html_of_module_kind b ~indent father ?modu k
@@ -971,7 +971,7 @@ class wiki =
               None ->
                 bs b (self#create_fully_qualified_module_idents_links father (self#escape code))
             | Some mt ->
-		bp b "<<a_api%s text=\"%s\" | module %s >>" (get_subproject ()) (self#escape code) mt.mt_name
+                bp b "<<a_api%s text=\"%s\" | module %s >>" (get_subproject ()) (self#escape code) mt.mt_name
           end;
           bs b ">>"
 
@@ -1022,15 +1022,15 @@ class wiki =
                     List.iter (self#html_of_module_element b ~indent:(indent ^ "  ") ~pre:false father) eles;
                     bs b ">>"
                 | Some m ->
-		    bp b "<<a_api%s text=\"..\" | module %s >>" (get_subproject ()) m.m_name
+                    bp b "<<a_api%s text=\"..\" | module %s >>" (get_subproject ()) m.m_name
                )
            | Some mt ->
-	       bp b "<<a_api%s text=\"..\" | module type %s >>" (get_subproject ()) mt.mt_name
+               bp b "<<a_api%s text=\"..\" | module type %s >>" (get_subproject ()) mt.mt_name
           );
           bs b (self#keyword "end")
       | Module_type_functor (p, k) ->
           self#html_of_module_parameter b ~indent father p;
-	  bp b "\\\\%s  " indent;
+          bp b "\\\\%s  " indent;
           self#html_of_module_type_kind b father ~indent ?modu ?mt k;
       | Module_type_alias a ->
           bs b "<<span class=\"odocwiki_type\"|";
@@ -1038,14 +1038,14 @@ class wiki =
           bs b ">>"
       | Module_type_with (k, s) ->
           (* TODO: à modifier quand Module_with sera plus détaillé *)
-	  let s2 = self#create_fully_qualified_module_idents_links father s in
-	  let s3, _ = newline_to_indented_br ~indent:(indent ^ "  ") ~indent_first:false s2 in
-	  (
-	   try ignore (String.index s2 '\n'); bp b "\\\\%s  " indent
-	   with Not_found -> ()
-	  );
+          let s2 = self#create_fully_qualified_module_idents_links father s in
+          let s3, _ = newline_to_indented_br ~indent:(indent ^ "  ") ~indent_first:false s2 in
+          (
+           try ignore (String.index s2 '\n'); bp b "\\\\%s  " indent
+           with Not_found -> ()
+          );
           self#html_of_module_type_kind b father ~indent ?modu ?mt k;
-	  bp b "<<span class=\"odocwiki_type\"|%s%s>>" indent s3
+          bp b "<<span class=\"odocwiki_type\"|%s%s>>" indent s3
       | Module_type_typeof s ->
           bs b "<<span class=\"odocwiki_type\"|module type of ";
           bs b (self#create_fully_qualified_module_idents_links father s);
@@ -1069,7 +1069,7 @@ class wiki =
     method html_of_value b ?(pre = true) ~indent v =
       Odoc_info.reset_type_names ();
       bp b "<<%s id=\"%s\" class=\"ocsforge_color odocwiki_code\"|"
-	(if pre then "pre" else "span") (Naming.value_target v);
+        (if pre then "pre" else "span") (Naming.value_target v);
       bs b indent;
       bs b (self#keyword "val");
       bs b " ";
@@ -1079,13 +1079,13 @@ class wiki =
        | Some c ->
            let file = Naming.file_code_value_complete_target v in
            self#output_code v.val_name (Filename.concat !Conf.target_dir file) c;
-	   bp b "<<a_api_code%s | value %s >>" (get_subproject ()) v.val_name
+           bp b "<<a_api_code%s | value %s >>" (get_subproject ()) v.val_name
       );
       bs b (" "^(self#delimiter "~:")^" ");
       self#html_of_type_expr b
-	~indent:(indent ^ "  ")
-	~init_len:(7+String.length (Name.simple v.val_name))
-	(Name.father v.val_name) v.val_type;
+        ~indent:(indent ^ "  ")
+        ~init_len:(7+String.length (Name.simple v.val_name))
+        (Name.father v.val_name) v.val_type;
       bs b ">>";
       self#html_of_info b v.val_info;
       (
@@ -1099,7 +1099,7 @@ class wiki =
     method html_of_exception b ?(pre = true) ~indent e =
       Odoc_info.reset_type_names ();
       bp b "<<%s id=\"%s\" class=\"ocsforge_color odocwiki_code\"|"
-	(if pre then "pre" else "span") (Naming.exception_target e);
+        (if pre then "pre" else "span") (Naming.exception_target e);
       bs b indent;
       bs b (self#keyword "exception");
       bs b " ";
@@ -1110,9 +1110,9 @@ class wiki =
        | _ ->
            bs b (" "^(self#keyword "of")^" ");
            self#html_of_type_expr_list
-	     ~indent:(indent ^ "  ")
-	     ~init_len:(14+String.length (Name.simple e.ex_name))
-	     ~par: false b (Name.father e.ex_name) " * " e.ex_args
+             ~indent:(indent ^ "  ")
+             ~init_len:(14+String.length (Name.simple e.ex_name))
+             ~par: false b (Name.father e.ex_name) " * " e.ex_args
       );
       (
        match e.ex_alias with
@@ -1133,14 +1133,14 @@ class wiki =
       Odoc_info.reset_type_names ();
       let father = Name.father t.ty_name in
       bp b "<<%s class=\"ocsforge_color odocwiki_code\" id=\"%s\"|"
-	(if pre then "pre" else "span") (Naming.type_target t);
+        (if pre then "pre" else "span") (Naming.type_target t);
       bs b indent;
       bs b ((self#keyword "type")^" ");
       let init_len =
-	self#html_of_type_expr_param_list b
-	  ~indent:(indent ^ "  ") ~init_len:5 father t in
+        self#html_of_type_expr_param_list b
+          ~indent:(indent ^ "  ") ~init_len:5 father t in
       let init_len =
-	init_len + (match t.ty_parameters with [] -> 0 | _ -> bs b " "; 1) in
+        init_len + (match t.ty_parameters with [] -> 0 | _ -> bs b " "; 1) in
       bp b "<<span class=\"odocwiki_name\"|%s>>" (self#escape (Name.simple t.ty_name));
       let priv = t.ty_private = Asttypes.Private in
       (
@@ -1149,7 +1149,7 @@ class wiki =
        | Some typ ->
            bs b (" "^(self#delimiter "~=")^" ");
            let init_len =
-	     init_len + if priv then (bs b "private "; 11) else 3 in
+             init_len + if priv then (bs b "private "; 11) else 3 in
            self#html_of_type_expr b ~indent:(indent ^ "  ") ~init_len father typ;
            bs b " "
       );
@@ -1157,22 +1157,22 @@ class wiki =
         Type_abstract -> ()
       | Type_variant l ->
           bs b (" "^(self#delimiter "~=")^" ");
-	  if priv then bs b "private ";
+          if priv then bs b "private ";
           let print_one constr =
             bs b "<<span class=\"odocwiki_variant\"|";
             bs b "<<span class=\"odocwiki_variant_constr\"|";
-	    bs b indent;
+            bs b indent;
             bs b ((self#keyword " ~|")^" ");
             bs b (self#constructor constr.vc_name);
-	    let init_len = 7 + String.length constr.vc_name in
+            let init_len = 7 + String.length constr.vc_name in
             (
              match constr.vc_args with
                [] -> ()
              | l ->
                  bs b (" " ^ (self#keyword "of") ^ " ");
                  self#html_of_type_expr_list
-		   ~indent:(indent ^ "    ") ~init_len
-		   ~par: false b father " * " l;
+                   ~indent:(indent ^ "    ") ~init_len
+                   ~par: false b father " * " l;
             );
             bs b ">>";
             (
@@ -1198,10 +1198,10 @@ class wiki =
           let print_one r =
             bs b "<<span class=\"odocwiki_field\"|";
             bs b "<<span class=\"odocwiki_field_descr\"|  ";
-	    bs b indent;
+            bs b indent;
             if r.rf_mutable then bs b (self#keyword "mutable ") ;
             bp b "<<span class=\"ocsforge_color_label\"|%s:>> " r.rf_name;
-	    let init_len = 4 + String.length r.rf_name + if r.rf_mutable then 8 else 0 in
+            let init_len = 4 + String.length r.rf_name + if r.rf_mutable then 8 else 0 in
             self#html_of_type_expr b ~indent:(indent ^ "    ") ~init_len father r.rf_type;
             bs b (self#delimiter "~;" ^ " >>");
             (
@@ -1238,15 +1238,15 @@ class wiki =
       if a.att_mutable then bs b ((self#keyword Odoc_messages.mutab)^ " ");
       let init_len = init_len + if a.att_mutable then String.length Odoc_messages.mutab + 1 else 0 in
       (
-	match a.att_value.val_code with
-	| None ->
-	    bp b "<<span class=\"odocwiki_name\"|%s>>" (Name.simple a.att_value.val_name);
-	| Some c ->
+        match a.att_value.val_code with
+        | None ->
+            bp b "<<span class=\"odocwiki_name\"|%s>>" (Name.simple a.att_value.val_name);
+        | Some c ->
           let file = Naming.file_code_attribute_complete_target a in
           self#output_code a.att_value.val_name (Filename.concat !Conf.target_dir file) c;
-	  bp b "<<a_api_code%s text=\"%s\" | attribute %s >>"
-	    (get_subproject ())
-	    (Name.simple a.att_value.val_name) a.att_value.val_name;
+          bp b "<<a_api_code%s text=\"%s\" | attribute %s >>"
+            (get_subproject ())
+            (Name.simple a.att_value.val_name) a.att_value.val_name;
       );
       let init_len = init_len + String.length (Name.simple a.att_value.val_name) + 3 in
       bs b ">>";
@@ -1274,9 +1274,9 @@ class wiki =
        | Some c ->
            let file = Naming.file_code_method_complete_target m in
            self#output_code m.met_value.val_name (Filename.concat !Conf.target_dir file) c;
-	   bp b "<<a_api_code%s text=\"%s\" | method %s >>"
-	     (get_subproject ())
-	     (Name.simple m.met_value.val_name) m.met_value.val_name;
+           bp b "<<a_api_code%s text=\"%s\" | method %s >>"
+             (get_subproject ())
+             (Name.simple m.met_value.val_name) m.met_value.val_name;
       );
       let init_len = init_len + String.length (Name.simple m.met_value.val_name) + 3 in
       bs b ">>";
@@ -1387,7 +1387,7 @@ class wiki =
           bs b "<td align=\"left\" valign=\"top\" width=\"1%%\">**";
 *)
           bs b "<<div class=\"odocwiki_module_param_list\" | ";
-	  bp b "<<span class=\"odocwiki_param_title\" |%s :>>" Odoc_messages.parameters;
+          bp b "<<span class=\"odocwiki_param_title\" |%s :>>" Odoc_messages.parameters;
           bs b "<<div|\n";
           let tableattr = ref "class=\"odocwiki_paramstable\"@ @" in
           List.iter
@@ -1416,13 +1416,13 @@ class wiki =
     method html_of_module b ?(pre = true) ?(info=true) ?(complete=true) ?(with_link=true) ~indent m =
       let father = Name.father m.m_name in
       bp b "<<%s class=\"ocsforge_color odocwiki_code\"|"
-	(if pre then "pre" else "span");
+        (if pre then "pre" else "span");
       bs b indent;
       bs b ((self#keyword "module")^" ");
       (
        if with_link then
-	 bp b "<<a_api%s text=\"%s\" | module %s >>"
-	   (get_subproject ()) (Name.simple m.m_name) m.m_name
+         bp b "<<a_api%s text=\"%s\" | module %s >>"
+           (get_subproject ()) (Name.simple m.m_name) m.m_name
        else
          bp b "<<span class=\"ocsforge_color_uid\"|%s>>" (self#constructor (Name.simple m.m_name))
       );
@@ -1448,13 +1448,13 @@ class wiki =
     method html_of_modtype b ?(pre = true) ?(info=true) ?(complete=true) ?(with_link=true) ~indent mt =
       let father = Name.father mt.mt_name in
       bp b "<<%s class=\"ocsforge_color odocwiki_code\"|"
-	(if pre then "pre" else "span");
+        (if pre then "pre" else "span");
       bs b indent;
       bs b ((self#keyword "module type")^" ");
       (
        if with_link then
-	 bp b "<<a_api%s text=\"%s\" | module type %s >>"
-	   (get_subproject ()) (Name.simple mt.mt_name) mt.mt_name
+         bp b "<<a_api%s text=\"%s\" | module type %s >>"
+           (get_subproject ()) (Name.simple mt.mt_name) mt.mt_name
        else
          bp b "<<span class=\"ocsforge_color_uid\"|%s>>" (Name.simple mt.mt_name)
       );
@@ -1478,7 +1478,7 @@ class wiki =
     (** Print html code for an included module. *)
     method html_of_included_module b ?(pre = true) ~indent im =
       bp b "<<%s class=\"ocsforge_color odocwiki_code\"|"
-	(if pre then "pre" else "span");
+        (if pre then "pre" else "span");
       bs b indent;
       bs b ((self#keyword "include")^" ");
       (
@@ -1489,7 +1489,7 @@ class wiki =
            match mmt with
              Mod m -> bp b "<<a_api%s | module %s >>" (get_subproject ()) m.m_name
            | Modtype mt ->
-	       bp b "<<a_api%s | module type %s >>" (get_subproject ()) mt.mt_name
+               bp b "<<a_api%s | module type %s >>" (get_subproject ()) mt.mt_name
       );
       bs b ">>\n";
       self#html_of_info b im.im_info
@@ -1519,7 +1519,7 @@ class wiki =
                );
                List.iter (self#html_of_class_element ~indent:(indent^"  ") b) eles;
            | Some cl ->
-	       bp b "<<a_api%s text=\"..\" | class %s >>" (get_subproject ()) cl.cl_name
+               bp b "<<a_api%s text=\"..\" | class %s >>" (get_subproject ()) cl.cl_name
           );
           bs b (self#keyword "end")
 
@@ -1533,7 +1533,7 @@ class wiki =
              [] -> ()
            | l ->
                ignore(self#html_of_class_type_param_expr_list b
-			~indent:(indent^"  ") ~init_len father l);
+                        ~indent:(indent^"  ") ~init_len father l);
                bs b " "
           );
           bs b "<<span class=\"odocwiki_type\"|";
@@ -1574,8 +1574,8 @@ class wiki =
                );
                List.iter (self#html_of_class_element ~indent:(indent^"  ") b) eles
            | Some ct ->
-	       bp b "<<a_api%s text=\"..\" | class type %s >>"
-		 (get_subproject ()) ct.clt_name
+               bp b "<<a_api%s text=\"..\" | class type %s >>"
+                 (get_subproject ()) ct.clt_name
           );
           bs b (self#keyword "end")
 
@@ -1584,12 +1584,12 @@ class wiki =
       let father = Name.father c.cl_name in
       Odoc_info.reset_type_names ();
       bp b "<<%s class=\"ocsforge_color odocwiki_code\"|"
-	(if pre then "pre" else "span");
+        (if pre then "pre" else "span");
       bs b indent;
       (* we add a html id, the same as for a type so we can
          go directly here when the class name is used as a type name *)
       let name =
-	Naming.type_target
+        Naming.type_target
           { ty_name = c.cl_name ;
             ty_info = None ; ty_parameters = [] ;
             ty_kind = Type_abstract ; ty_private = Asttypes.Public; ty_manifest = None ;
@@ -1601,18 +1601,18 @@ class wiki =
       if c.cl_virtual then bs b ((self#keyword "virtual")^" ");
       let init_len = 6 + String.length name + if c.cl_virtual then 8 else 0 in
       let init_len =
-	match c.cl_type_parameters with
+        match c.cl_type_parameters with
           | [] -> init_len
-	  | l ->
+          | l ->
             let init_len =
-	      self#html_of_class_type_param_expr_list b ~init_len ~indent father l in
-	    bs b " ";
-	    init_len + 1
+              self#html_of_class_type_param_expr_list b ~init_len ~indent father l in
+            bs b " ";
+            init_len + 1
       in
       (
        if with_link then
-	 bp b "<<a_api%s text=\"%s\" | class %s >>"
-	   (get_subproject ()) (Name.simple c.cl_name) c.cl_name
+         bp b "<<a_api%s text=\"%s\" | class %s >>"
+           (get_subproject ()) (Name.simple c.cl_name) c.cl_name
        else
          bp b "<<span class=\"ocsforge_color_name\"|%s>>" (Name.simple c.cl_name)
       );
@@ -1652,13 +1652,13 @@ class wiki =
       if ct.clt_virtual then bs b ((self#keyword "virtual")^" ");
       let init_len = init_len + if ct.clt_virtual then 8 else 0 in
       let init_len =
-	match ct.clt_type_parameters with
+        match ct.clt_type_parameters with
         | [] -> init_len
-	| l ->
+        | l ->
           self#html_of_class_type_param_expr_list b ~indent ~init_len father l in
       if with_link then
-	 bp b "<<a_api%s text=\"%s\" | class type %s >>"
-	  (get_subproject ()) (Name.simple ct.clt_name) ct.clt_name
+         bp b "<<a_api%s text=\"%s\" | class type %s >>"
+          (get_subproject ()) (Name.simple ct.clt_name) ct.clt_name
       else
         bp b  "<<span class=\"ocsforge_color_name\"|%s>>" (Name.simple ct.clt_name);
       bs b ">>";
@@ -1684,7 +1684,7 @@ class wiki =
             None -> "<<a_api"^get_subproject ()^" class=\"dag\" | class "^name^" >>"
           | Some (Cl c) -> "<<a_api"^get_subproject ()^" class=\"dag\" | class "^c.cl_name^" >>"
           | Some (Cltype (ct, _)) ->
-	      "<<a_api"^get_subproject ()^" class=\"dag\" | class type "^ct.clt_name^" >>"
+              "<<a_api"^get_subproject ()^" class=\"dag\" | class type "^ct.clt_name^" >>"
         in
         { n with Odoc_dag2html.valu = new_v }
       in
@@ -1764,7 +1764,7 @@ class wiki =
     (** A method to create index files. *)
     method generate_elements_index :
         'a.
-	string ->
+        string ->
         'a list ->
           ('a -> Odoc_info.Name.t) ->
             ('a -> Odoc_info.info option) ->
@@ -1784,10 +1784,10 @@ class wiki =
           let simple_name = Name.simple (name e) in
           let father_name = Name.father (target e) in
           bp b "|@@class=\"odocwiki_index\"@ @@<<a_api%s text=\"%s\"| %s %s >> "
-	    (get_subproject ()) simple_name target_kind (target e);
+            (get_subproject ()) simple_name target_kind (target e);
           if simple_name <> father_name && father_name <> "" then
             bp b "~[<<a_api%s | module %s >>~]"
-	      (get_subproject ()) father_name;
+              (get_subproject ()) father_name;
           bs b "|";
           self#html_of_info_first_sentence b (info e);
           bs b "|\n";
@@ -1839,7 +1839,7 @@ class wiki =
         bs b "=";
         bs b (Odoc_messages.clas^" ");
         if cl.cl_virtual then bs b "virtual " ;
-	bp b "<<a_api_type%s | class %s >> "(get_subproject ()) cl.cl_name;
+        bp b "<<a_api_type%s | class %s >> "(get_subproject ()) cl.cl_name;
         bs b "=\n";
         self#html_of_class b ~with_link: false ~indent:"" cl;
         (* parameters *)
@@ -1875,7 +1875,7 @@ class wiki =
         bs b "=";
         bs b (Odoc_messages.class_type^" ");
         if clt.clt_virtual then bs b "virtual ";
-	bp b "<<a_api_type%s | class type %s >> "(get_subproject ()) clt.clt_name;
+        bp b "<<a_api_type%s | class type %s >> "(get_subproject ()) clt.clt_name;
         bs b "=\n";
         self#html_of_class_type b ~with_link: false ~indent:""clt;
 
@@ -1911,7 +1911,7 @@ class wiki =
         (
          match mt.mt_type with
            Some _ ->
-	     bp b "<<a_api_type%s | module type %s >> " (get_subproject ()) mt.mt_name
+             bp b "<<a_api_type%s | module type %s >> " (get_subproject ()) mt.mt_name
          | None-> bs b mt.mt_name
         );
         bs b "=\n" ;
@@ -1976,13 +1976,13 @@ class wiki =
               else
                 Odoc_messages.modul
              );
-	   bp b " <<a_api_type%s | module %s >> " (get_subproject ()) modu.m_name;
+           bp b " <<a_api_type%s | module %s >> " (get_subproject ()) modu.m_name;
            (
             match modu.m_code with
               None -> ()
             | Some _ ->
-		bp b " <<a_api_code%s text=\".ml\" | module %s >> "
-		  (get_subproject ()) modu.m_name
+                bp b " <<a_api_code%s text=\".ml\" | module %s >> "
+                  (get_subproject ()) modu.m_name
            )
           );
         bs b "=\n";
@@ -2066,15 +2066,15 @@ class wiki =
       try
         let chanout = open_out (Filename.concat !Conf.target_dir self#menu) in
         let b = new_buf () in
-	let current_level = ref "" in
-	let module M = Odoc_info in
-	let rec wiki_of_text_element parent = function
+        let current_level = ref "" in
+        let module M = Odoc_info in
+        let rec wiki_of_text_element parent = function
         | M.Module_list s ->
             let sub = match !subproject with None -> "" | Some d -> d ^ "/" in
             List.iter (fun s -> bp b "=%s[[%s%s|%s]]\n" !current_level sub s s) s;
         | M.Title (level, label, text) ->
-	    let level = String.make level '=' in
-	    current_level := level;
+            let level = String.make level '=' in
+            current_level := level;
             bs b level;
             begin match label with
                | Some s -> bp b "@@label=\"%s\"@@" s
@@ -2082,39 +2082,39 @@ class wiki =
             end;
             List.iter (wiki_of_text_element `Title) text;
         | M.Raw s when parent = `Title ->
-	    bs b (self#escape s); bs b "\n"
+            bs b (self#escape s); bs b "\n"
         | M.Latex s when parent = `Title ->
-	    bs b s; bs b "\n"
-	| M.Index_list ->
-	  let index_if_not_empty l url m =
+            bs b s; bs b "\n"
+        | M.Index_list ->
+          let index_if_not_empty l url m =
             match l with
-	      |	[] -> ()
+              |        [] -> ()
               | _ ->
-		bp b "=%s <<a_api%s text=%S | index %s >>\n" !current_level
-		  (get_subproject ()) m url
-	  in
-	  index_if_not_empty self#list_types "types" Odoc_messages.index_of_types;
-	  index_if_not_empty self#list_exceptions "exceptions" Odoc_messages.index_of_exceptions;
-	  index_if_not_empty self#list_values "values" Odoc_messages.index_of_values;
-	  index_if_not_empty self#list_attributes "attributes" Odoc_messages.index_of_attributes;
-	  index_if_not_empty self#list_methods "methods" Odoc_messages.index_of_methods;
-	  index_if_not_empty self#list_classes "classes" Odoc_messages.index_of_classes;
-	  index_if_not_empty self#list_class_types "class types" Odoc_messages.index_of_class_types;
-	  index_if_not_empty self#list_modules "modules" Odoc_messages.index_of_modules;
-	  index_if_not_empty self#list_module_types "module types" Odoc_messages.index_of_module_types
+                bp b "=%s <<a_api%s text=%S | index %s >>\n" !current_level
+                  (get_subproject ()) m url
+          in
+          index_if_not_empty self#list_types "types" Odoc_messages.index_of_types;
+          index_if_not_empty self#list_exceptions "exceptions" Odoc_messages.index_of_exceptions;
+          index_if_not_empty self#list_values "values" Odoc_messages.index_of_values;
+          index_if_not_empty self#list_attributes "attributes" Odoc_messages.index_of_attributes;
+          index_if_not_empty self#list_methods "methods" Odoc_messages.index_of_methods;
+          index_if_not_empty self#list_classes "classes" Odoc_messages.index_of_classes;
+          index_if_not_empty self#list_class_types "class types" Odoc_messages.index_of_class_types;
+          index_if_not_empty self#list_modules "modules" Odoc_messages.index_of_modules;
+          index_if_not_empty self#list_module_types "module types" Odoc_messages.index_of_module_types
         | _ -> ()
-	in
+        in
         let info = Odoc_info.apply_opt
             (Odoc_info.info_of_comment_file module_list)
             !Conf.intro_file
         in
-	(
-	 match info with
+        (
+         match info with
          | None | Some { M.i_desc = None; } -> ()
          | Some { M.i_desc = Some d; } when d = [M.Raw ""] -> ()
          | Some { M.i_desc = Some d; } ->
-	     List.iter (wiki_of_text_element `None) d
-	);
+             List.iter (wiki_of_text_element `None) d
+        );
         Buffer.output_buffer chanout b;
         close_out chanout
       with
@@ -2124,7 +2124,7 @@ class wiki =
     (** Generate the values index in the file [index_values.html]. *)
     method generate_values_index module_list =
       self#generate_elements_index
-	"value"
+        "value"
         self#list_values
         (fun v -> v.val_name)
         (fun v -> v.val_info)
@@ -2135,7 +2135,7 @@ class wiki =
     (** Generate the exceptions index in the file [index_exceptions.html]. *)
     method generate_exceptions_index module_list =
       self#generate_elements_index
-	"exception"
+        "exception"
         self#list_exceptions
         (fun e -> e.ex_name)
         (fun e -> e.ex_info)
@@ -2146,7 +2146,7 @@ class wiki =
     (** Generate the types index in the file [index_types.html]. *)
     method generate_types_index module_list =
       self#generate_elements_index
-	"type"
+        "type"
         self#list_types
         (fun t -> t.ty_name)
         (fun t -> t.ty_info)
@@ -2157,15 +2157,15 @@ class wiki =
     (** Generate the attributes index in the file [index_attributes.html]. *)
     method generate_attributes_index module_list =
       self#generate_elements_index
-	"attr"
+        "attr"
         self#list_attributes
         (fun a -> a.att_value.val_name)
         (fun a -> a.att_value.val_info)
         (fun a ->
-	  let s = String.copy a.att_value.val_name in
-	  s.[String.rindex s '.'] <- '#';
-	  s
-	)
+          let s = String.copy a.att_value.val_name in
+          s.[String.rindex s '.'] <- '#';
+          s
+        )
         Odoc_messages.index_of_attributes
         self#index_attributes
 
@@ -2177,17 +2177,17 @@ class wiki =
         (fun m -> m.met_value.val_name)
         (fun m -> m.met_value.val_info)
         (fun m ->
-	  let s = String.copy m.met_value.val_name in
-	  s.[String.rindex s '.'] <- '#';
-	  s
-	)
+          let s = String.copy m.met_value.val_name in
+          s.[String.rindex s '.'] <- '#';
+          s
+        )
         Odoc_messages.index_of_methods
         self#index_methods
 
     (** Generate the classes index in the file [index_classes.html]. *)
     method generate_classes_index module_list =
       self#generate_elements_index
-	"class"
+        "class"
         self#list_classes
         (fun c -> c.cl_name)
         (fun c -> c.cl_info)
@@ -2198,7 +2198,7 @@ class wiki =
     (** Generate the class types index in the file [index_class_types.html]. *)
     method generate_class_types_index module_list =
       self#generate_elements_index
-	"class type"
+        "class type"
         self#list_class_types
         (fun ct -> ct.clt_name)
         (fun ct -> ct.clt_info)
@@ -2209,7 +2209,7 @@ class wiki =
     (** Generate the modules index in the file [index_modules.html]. *)
     method generate_modules_index module_list =
       self#generate_elements_index
-	"module"
+        "module"
         self#list_modules
         (fun m -> m.m_name)
         (fun m -> m.m_info)
@@ -2220,7 +2220,7 @@ class wiki =
     (** Generate the module types index in the file [index_module_types.html]. *)
     method generate_module_types_index module_list =
       self#generate_elements_index
-	"module type"
+        "module type"
         self#list_module_types
         (fun mt -> mt.mt_name)
         (fun mt -> mt.mt_info)
@@ -2325,5 +2325,3 @@ let doc_generator = (module Generator : Odoc_gen.Base)
 let _ = Odoc_args.set_generator (Odoc_gen.Base (module Generator : Odoc_gen.Base))
 
 #endif
-
-

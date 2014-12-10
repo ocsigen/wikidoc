@@ -315,10 +315,10 @@ module LatexBuilder = struct
   let errmsg ?(err = Leaf "Unsupported plugin") name =
     Lwt.return
       (Nodelist [Leaf_unquoted "{\\bfseries ** Plugin error {\\em ";
-		 Leaf name;
-		 Leaf_unquoted  "} (";
-		 err;
-		 Leaf_unquoted ")}"])
+                 Leaf name;
+                 Leaf_unquoted  "} (";
+                 err;
+                 Leaf_unquoted ")}"])
 
   let plugin_fun : (string -> bool * (param, syntax_extension) plugin) ref =
     ref (fun name -> (true, (fun () args  content -> `Flow5 (errmsg name))))

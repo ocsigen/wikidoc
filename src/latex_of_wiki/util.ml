@@ -14,9 +14,9 @@ module String = struct
       if (i > endd) || (beg > i)
       then i
       else
-	if s.[i] = ' ' || s.[i] = '\r' || s.[i] = '\n' || s.[i] = '\t'
-	then find_not_space s (i+step) step
-	else i
+        if s.[i] = ' ' || s.[i] = '\r' || s.[i] = '\n' || s.[i] = '\t'
+        then find_not_space s (i+step) step
+        else i
     in
     let first = find_not_space s beg 1 in
     let last = find_not_space s endd (-1) in
@@ -30,14 +30,14 @@ module String = struct
       if deb >= longueur
       then []
       else
-	try
+        try
           let firstsep = String.index_from s deb char in
           if multisep && firstsep = deb then
             aux (deb + 1)
           else
             (remove_spaces s deb (firstsep-1))::
               (aux (firstsep+1))
-	with Not_found -> [remove_spaces s deb (longueur-1)]
+        with Not_found -> [remove_spaces s deb (longueur-1)]
     in
     aux 0
 
@@ -48,5 +48,3 @@ module String = struct
       | Some r -> r
 
 end
-
-

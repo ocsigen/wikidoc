@@ -5,21 +5,21 @@ exception Error of string
 type id =
     string list * [ `Mod of string    | `ModType of string
                   | `Value of string  | `Type of string
-		  | `Class of string  | `ClassType of string
-		  | `Exc of string
-		  | `Method of (string * string) | `Attr of (string * string)
-		  | `Section of string
-		  | `Index
-		  | `IndexTypes
-		  | `IndexExceptions
-		  | `IndexValues
-		  | `IndexAttributes
-		  | `IndexMethods
-		  | `IndexClasses
-		  | `IndexClassTypes
-		  | `IndexModules
-		  | `IndexModuleTypes
-		  ]
+                  | `Class of string  | `ClassType of string
+                  | `Exc of string
+                  | `Method of (string * string) | `Attr of (string * string)
+                  | `Section of string
+                  | `Index
+                  | `IndexTypes
+                  | `IndexExceptions
+                  | `IndexValues
+                  | `IndexAttributes
+                  | `IndexMethods
+                  | `IndexClasses
+                  | `IndexClassTypes
+                  | `IndexModules
+                  | `IndexModuleTypes
+                  ]
 
 let path_of_id ?(prefix) id =
   let add_prefix s = match prefix with
@@ -120,37 +120,37 @@ let parse_api_contents args contents =
       | "index" :: "modules" :: _ -> [], `IndexModules
       | "index" :: "module" :: "types" :: _ -> [], `IndexModuleTypes
       | "val":: lid | "value":: lid ->
-	  let path, id = parse_lid lid in
-	  path, `Value id
+          let path, id = parse_lid lid in
+          path, `Value id
       | "type":: lid ->
-	  let path, id = parse_lid lid in
-	  path, `Type id
+          let path, id = parse_lid lid in
+          path, `Type id
       | "class":: "type" :: lid ->
-	  let path, id = parse_lid lid in
-	  path , `ClassType id
+          let path, id = parse_lid lid in
+          path , `ClassType id
       | "class":: lid ->
-	  let path, id = parse_lid lid in
-	  path , `Class id
+          let path, id = parse_lid lid in
+          path , `Class id
       | "module":: "type" :: uid | "mod":: "type" :: uid ->
-	  let path, id = parse_uid uid in
-	  path, `ModType id
+          let path, id = parse_uid uid in
+          path, `ModType id
       | "module":: uid | "mod":: uid ->
-	  let path, id = parse_uid uid in
-	  path, `Mod id
+          let path, id = parse_uid uid in
+          path, `Mod id
       | "exception":: uid | "exc":: uid ->
-	  let path, id = parse_uid uid in
-	  path, `Exc id
+          let path, id = parse_uid uid in
+          path, `Exc id
       | "attribute":: lid | "attr":: lid ->
-	  let path, id = parse_lid lid in
-	  let id, did = parse_method id in
-	  path, `Attr (id, did)
+          let path, id = parse_lid lid in
+          let id, did = parse_method id in
+          path, `Attr (id, did)
       | "method":: lid ->
-	  let path, id = parse_lid lid in
-	  let id, mid = parse_method id in
-	  path, `Method (id, mid)
+          let path, id = parse_lid lid in
+          let id, mid = parse_method id in
+          path, `Method (id, mid)
       | "section":: lid ->
-	  let path, id = parse_lid lid in
-	  path, `Section id
+          let path, id = parse_lid lid in
+          path, `Section id
       | _ -> raise (Error "invalid contents")
 
 let string_of_id ?(spacer = ".") : id -> string = function
