@@ -16,5 +16,5 @@ depends: [
   "ocamlfind"
   "optcomp"
   "lwt"
-  "pcre-ocaml"
+  "pcre"
 ]
