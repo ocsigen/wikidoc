@@ -16,20 +16,11 @@ open Parameter
 open Value
 open Type
 open Exception
+open Extension
 open Class
 open Module
 
 module Conf = struct
-#if ocaml_version < (4, 00)
-let colorize_code = Args.colorize_code
-let out_file = Odoc_args.out_file
-let html_short_functors = Odoc_info.Args.html_short_functors
-let with_parameter_list = Args.with_parameter_list
-let target_dir = Args.target_dir
-let title = Args.title
-let intro_file = Odoc_info.Args.intro_file
-let index_only = Args.index_only
-#else
 let colorize_code = Odoc_html.colorize_code
 let out_file = Odoc_global.out_file
 let html_short_functors = Odoc_html.html_short_functors
@@ -38,7 +29,6 @@ let target_dir = Global.target_dir
 let title = Global.title
 let intro_file = Odoc_info.Global.intro_file
 let index_only = Odoc_html.index_only
-#endif
 end
 
 let remove_spaces s beg endd =
@@ -368,10 +358,9 @@ class virtual text =
             | Odoc_info.RK_attribute -> "attribute " ^ name
             | Odoc_info.RK_method -> "method " ^ name
             | Odoc_info.RK_section t -> "section " ^ name
-#if ocaml_version >= (4, 00)
             | Odoc_info.RK_recfield -> "recfield " ^ name
             | Odoc_info.RK_const -> "const " ^ name
-#endif
+            | Odoc_info.RK_extension -> "extension " ^ name
           in
           bp b "<<a_api%s" (get_subproject ());
           begin match text_opt with
@@ -403,11 +392,7 @@ class virtual text =
              self#html_of_info_first_sentence b m.m_info;
            with
              Not_found ->
-#if ocaml_version < (4, 00)
-               Odoc_messages.pwarning (Odoc_messages.cross_module_not_found name);
-#else
                Odoc_global.pwarning (Odoc_messages.cross_module_not_found name);
-#endif
                bp b "%s|" name
           );
           bs b "|\n"
@@ -686,6 +671,8 @@ class wiki =
     method index_values = Printf.sprintf "%s_values.wiki" self#index_prefix
     (** The file for the index of types. *)
     method index_types = Printf.sprintf "%s_types.wiki" self#index_prefix
+    (** The file for the index of extensions. *)
+    method index_extensions = Printf.sprintf "%s_extensions.wiki" self#index_prefix
     (** The file for the index of exceptions. *)
     method index_exceptions = Printf.sprintf "%s_exceptions.wiki" self#index_prefix
     (** The file for the index of attributes. *)
@@ -714,6 +701,9 @@ class wiki =
     (** The list of exceptions. Filled in the [generate] method. *)
     val mutable list_exceptions = []
     method list_exceptions = list_exceptions
+    (** The list of extension. Filled in the [generate] method. *)
+    val mutable list_extensions = []
+    method list_extensions = list_extensions
     (** The list of types. Filled in the [generate] method. *)
     val mutable list_types = []
     method list_types = list_types
@@ -1006,6 +996,8 @@ class wiki =
           self#html_of_type b ~indent ~pre t
       | Element_module_comment text ->
           self#html_of_module_comment b text
+      | Element_type_extension ext ->
+          self#html_of_type_extension b ~indent ~pre ext
 
     (** Print html code to display the given module type kind. *)
     method html_of_module_type_kind b father ~indent ?modu ?mt kind =
@@ -1052,8 +1044,12 @@ class wiki =
           bs b ">>"
 
     (** Print html code to display the type of a module parameter.. *)
-    method html_of_module_parameter_type b m_name p =
-      self#html_of_module_type b m_name ~code: p.mp_type_code p.mp_type
+    method html_of_module_parameter_type ~init_len ~indent b m_name p =
+      match p.mp_type with
+        | None -> ()
+        | Some typ ->
+            self#html_of_module_type
+              b m_name ~code:p.mp_type_code ~indent ~init_len typ
 
     (** Generate a file containing the module type in the given file name. *)
     method output_module_type in_title file mtyp =
@@ -1128,6 +1124,52 @@ class wiki =
       bs b ">>";
       self#html_of_info b e.ex_info
 
+    (** Print html code for a type extension. *)
+    method html_of_type_extension b ~indent ?(pre = true) t =
+      let father = Name.father t.te_type_name in
+      Odoc_info.reset_type_names ();
+      bp b "<<%s class=\"ocsforge_color odocwiki_code\" id=\"%s\"|"
+        (if pre then "pre" else "span")
+        (self#create_fully_qualified_idents_links indent t.te_type_name);
+      bs b indent;
+      bs b ((self#keyword "type")^" ");
+      bp b "<<span class=\"odocwiki_name\"|%s>>" (self#escape (Name.simple t.te_type_name));
+      let priv = t.te_private = Asttypes.Private in
+      bs b (" "^(self#delimiter "~+=")^" ");
+      if priv then bs b "private ";
+      let print_one constr =
+        bs b "<<span class=\"odocwiki_variant\"|";
+        bs b "<<span class=\"odocwiki_variant_constr\"|";
+        bs b indent;
+        bs b ((self#keyword " ~|")^" ");
+        bs b (self#constructor constr.xt_name);
+        let init_len = 7 + String.length constr.xt_name in
+        (
+          match constr.xt_args with
+              [] -> ()
+            | l ->
+                bs b (" " ^ (self#keyword "of") ^ " ");
+                self#html_of_type_expr_list
+                  ~indent:(indent ^ "    ") ~init_len
+                  ~par: false b father " * " l;
+        );
+        bs b ">>";
+        (
+          match constr.xt_text with
+              None -> ()
+            | Some t ->
+                bs b "<<span class=\"odocwiki_comments\"|";
+                bp b "<<span class=\"odocwiki_comments_open\"|(*>> <<span|";
+                self#html_of_info b (Some t);
+                bp b ">><<span class=\"odocwiki_comments_close\"| ~*)>>";
+                bs b ">>";
+        );
+        bs b ">>"
+      in
+      bs b "<<span class=\"odocwiki_variants\"|";
+      Odoc_html.print_concat b "" print_one t.te_constructors;
+      bs b ">>";
+
     (** Print html code for a type. *)
     method html_of_type b ~indent ?(pre = true) t =
       Odoc_info.reset_type_names ();
@@ -1146,15 +1188,26 @@ class wiki =
       (
        match t.ty_manifest with
          None -> ()
-       | Some typ ->
+       | Some (Other typ)  ->
            bs b (" "^(self#delimiter "~=")^" ");
            let init_len =
              init_len + if priv then (bs b "private "; 11) else 3 in
            self#html_of_type_expr b ~indent:(indent ^ "  ") ~init_len father typ;
            bs b " "
+       | Some (Object_type ltyp)  ->
+           bs b (" "^(self#delimiter "~=")^" ");
+           let init_len =
+             init_len + if priv then (bs b "private "; 11) else 3 in
+           List.iter (fun t ->
+             self#html_of_type_expr
+               b ~indent:(indent ^ "  ") ~init_len father t.of_type)
+             ltyp ;
+           bs b " "
       );
       (match t.ty_kind with
         Type_abstract -> ()
+      | Type_open ->
+          bs b (" "^(self#delimiter "~=")^" ..")
       | Type_variant l ->
           bs b (" "^(self#delimiter "~=")^" ");
           if priv then bs b "private ";
@@ -1181,7 +1234,7 @@ class wiki =
              | Some t ->
                  bs b "<<span class=\"odocwiki_comments\"|";
                  bp b "<<span class=\"odocwiki_comments_open\"|(*>> <<span|";
-                 self#html_of_text b t;
+                 self#html_of_info b (Some t);
                  bp b ">><<span class=\"odocwiki_comments_close\"| ~*)>>";
                  bs b ">>";
             );
@@ -1210,7 +1263,7 @@ class wiki =
              | Some t ->
                  bs b "<<span class=\"odocwiki_comments\"|";
                  bp b "<<span class=\"odocwiki_comments_open\"|(*>> <<span|";
-                 self#html_of_text b t;
+                 self#html_of_info b (Some t);
                  bp b ">><<span class=\"odocwiki_comments_close\"| ~*)>>";
                  bs b ">>";
             );
@@ -2313,15 +2366,7 @@ class wiki =
 
 end
 
-#if ocaml_version < (4, 00)
-
-let doc_generator = ((new Generator.wiki) :> Odoc_args.doc_generator)
-let _ = Odoc_args.set_doc_generator (Some doc_generator)
-
-#else
 
 module type Wiki_generator = module type of Generator
 let doc_generator = (module Generator : Odoc_gen.Base)
 let _ = Odoc_args.set_generator (Odoc_gen.Base (module Generator : Odoc_gen.Base))
-
-#endif
