@@ -9,7 +9,7 @@ remove: [
   [ "ocamlfind" "remove" "wikidoc" ]
   [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
 ]
-ocaml-version: [= "4.01.0"]
+ocaml-version: [= "4.02.1"]
 depends: [
   "base-threads"
   "base-unix"
