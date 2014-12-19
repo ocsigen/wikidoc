@@ -285,7 +285,7 @@ let _ =
     )
 
 let _ =
-  Lwt_unix.run
+  Lwt_main.run
     (Wikicreole.from_channel ~sectioning:true () Wiki_latex.builder Lwt_io.stdin >>= fun l ->
      Lwt_list.iter_s
        (fun t -> t >>= fun t -> print_rope t; Lwt.return ()) l)
