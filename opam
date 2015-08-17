@@ -1,15 +1,21 @@
-opam-version: "1"
+opam-version: "1.2"
 maintainer: "dev@ocsigen.org"
 version: "dev"
+author: "dev@ocsigen.org"
+homepage: "https://github.com/ocsigen/wikidoc"
+bug-reports: "https://github.com/ocsigen/wikidoc/issues"
+dev-repo: "https://github.com/ocsigen/wikidoc.git"
 build: [
   [ make "BINDIR=%{bin}%" ]
+]
+install: [
   [ make "BINDIR=%{bin}%" "install" ]
 ]
 remove: [
   [ "ocamlfind" "remove" "wikidoc" ]
   [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
 ]
-ocaml-version: [= "4.02.1"]
+available: [ocaml-version >= "4.02.1" & ocaml-version < "4.03.0"]
 depends: [
   "base-threads"
   "base-unix"
