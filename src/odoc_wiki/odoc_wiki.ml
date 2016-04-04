@@ -946,7 +946,7 @@ class wiki =
            with Not_found -> ()
           );
           self#html_of_module_type_kind b father ~indent ?modu k;
-          bp b "<<span class=\"odocwiki_type\"|%s%s>>" indent s3
+          bp b "<<span class=\"odocwiki_type\"|%s %s>>" indent s3
       | Module_constraint (k, tk) ->
           (* TODO: on affiche quoi ? *)
           self#html_of_module_kind b ~indent father ?modu k
