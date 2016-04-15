@@ -1,5 +1,6 @@
 opam-version: "1.2"
 maintainer: "dev@ocsigen.org"
+name: "wikidoc"
 version: "dev"
 author: "dev@ocsigen.org"
 homepage: "https://github.com/ocsigen/wikidoc"
