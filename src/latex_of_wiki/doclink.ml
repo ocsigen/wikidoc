@@ -74,7 +74,7 @@ let is_capitalized s =
   String.length s >= 1 &&
   let c = int_of_char s.[0] in
   int_of_char 'A' <= c && c <= int_of_char 'Z'
-let is_all_capital s = String.uppercase s = s
+let is_all_capital s = String.uppercase_ascii s = s
 
 let check_capitalized_path path =
   List.iter

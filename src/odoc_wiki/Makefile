@@ -42,14 +42,14 @@ opt:: odoc_duce_wiki.cmxs
 endif
 
 odoc_import.cmo: odoc_import.ml
-	${OCAMLC} -c -I ${OCAMLDOCPATH} -syntax camlp4o -package optcomp  ${COMPILERLIBSPARSING} $<
+	${OCAMLC} -c -I ${OCAMLDOCPATH} ${COMPILERLIBSPARSING} $<
 odoc_import.cmx: odoc_import.ml
-	${OCAMLOPT} -c -I ${OCAMLDOCPATH} -syntax camlp4o -package optcomp ${COMPILERLIBSPARSING} $<
+	${OCAMLOPT} -c -I ${OCAMLDOCPATH} ${COMPILERLIBSPARSING} $<
 
 odoc_wiki.cmo: odoc_wiki.ml
-	${OCAMLC} -c -I ${OCAMLDOCPATH} -syntax camlp4o -package optcomp ${COMPILERLIBSPARSING} $<
+	${OCAMLC} -c -I ${OCAMLDOCPATH} ${COMPILERLIBSPARSING} $<
 odoc_wiki.cmx: odoc_wiki.ml
-	${OCAMLOPT} -c -I ${OCAMLDOCPATH} -syntax camlp4o -package optcomp ${COMPILERLIBSPARSING} $<
+	${OCAMLOPT} -c -I ${OCAMLDOCPATH} ${COMPILERLIBSPARSING} $<
 
 odoc_wiki.cma: odoc_import.cmo odoc_wiki.cmo
 	${OCAMLC} -a -o $@ $^
@@ -99,4 +99,3 @@ odoc_duce_wiki.ml: odoc_wiki.ml
 clean:
 	-rm -f *.cm[ioxa] *.o *.a *.cmx[sa]
 	-rm -f odoc_duce_wiki.ml odoc_duce_import.ml
-

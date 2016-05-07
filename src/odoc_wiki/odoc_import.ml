@@ -145,8 +145,9 @@ let string_of_class_params ?(margin = default_margin) c =
         Format.fprintf fmt "@[<hov 2>%s%s%a%s@] ->@ "
           (
            match label with
-             "" -> ""
-           | s -> s^":"
+            | Asttypes.Nolabel -> ""
+            | Asttypes.Labelled s -> s^":"
+            | Asttypes.Optional s -> "?"^s^":"
           )
           (if parent then "(" else "") (* TODO open_box ?*)
           (Printtyp.type_scheme_max ~b_reset_names:false) ty

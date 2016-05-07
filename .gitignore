@@ -1,0 +1,5 @@
+*.cm*
+*.a
+*.o
+src/latex_of_wiki/latex_of_wiki
+src/latex_of_wiki/wikicreole.ml
