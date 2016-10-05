@@ -536,10 +536,16 @@ class virtual info =
        @param indent can be specified not to use the style of info comments;
        default is [true].
     *)
-    method html_of_info ?(indent=true) b info_opt =
+    method html_of_info ?(no_markup=false) ?(indent=true) b info_opt =
       match info_opt with
         None ->
           ()
+      | Some info when no_markup ->
+          (
+           match info.Odoc_info.i_desc with
+             None -> ()
+           | Some d -> bs b (self#escape (Odoc_text.Texter.string_of_text d))
+          )
       | Some info ->
           let module M = Odoc_info in
           if indent then bs b "<<div class=\"odocwiki_info\"|";
@@ -1234,7 +1240,7 @@ class wiki =
              | Some t ->
                  bs b "<<span class=\"odocwiki_comments\"|";
                  bp b "<<span class=\"odocwiki_comments_open\"|(*>> <<span|";
-                 self#html_of_info b (Some t);
+                 self#html_of_info ~no_markup: true b (Some t);
                  bp b ">><<span class=\"odocwiki_comments_close\"| ~*)>>";
                  bs b ">>";
             );
@@ -1263,7 +1269,7 @@ class wiki =
              | Some t ->
                  bs b "<<span class=\"odocwiki_comments\"|";
                  bp b "<<span class=\"odocwiki_comments_open\"|(*>> <<span|";
-                 self#html_of_info b (Some t);
+                 self#html_of_info ~no_markup: true b (Some t);
                  bp b ">><<span class=\"odocwiki_comments_close\"| ~*)>>";
                  bs b ">>";
             );
@@ -1490,7 +1496,7 @@ class wiki =
       if info then
         (
          if complete then
-           self#html_of_info ~indent: false
+           self#html_of_info ?no_markup: None ~indent: false
          else
            self#html_of_info_first_sentence
         ) b m.m_info
@@ -1521,7 +1527,7 @@ class wiki =
       if info then
         (
          if complete then
-           self#html_of_info ~indent: false
+           self#html_of_info ?no_markup: None ~indent: false
          else
            self#html_of_info_first_sentence
         ) b mt.mt_info
@@ -1678,7 +1684,7 @@ class wiki =
       bs b ">>" ;
       (
        if complete then
-         self#html_of_info ~indent: false
+         self#html_of_info ?no_markup: None ~indent: false
        else
          self#html_of_info_first_sentence
       ) b c.cl_info
@@ -1721,7 +1727,7 @@ class wiki =
       bs b ">>";
       (
        if complete then
-         self#html_of_info ~indent: false
+         self#html_of_info ?no_markup: None ~indent: false
        else
          self#html_of_info_first_sentence
       ) b ct.clt_info
