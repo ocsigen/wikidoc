@@ -16,7 +16,7 @@ remove: [
   [ "ocamlfind" "remove" "wikidoc" ]
   [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
 ]
-available: [ocaml-version >= "4.02.1" & ocaml-version < "4.03.0"]
+available: [ocaml-version >= "4.03.0"]
 depends: [
   "base-threads"
   "base-unix"
