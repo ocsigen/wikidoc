@@ -1,0 +1,4 @@
+B src/*
+S src/*
+
+PKG lwt pcre ocamldoc compiler-libs.common

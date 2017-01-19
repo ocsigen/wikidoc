@@ -21,7 +21,6 @@ depends: [
   "base-threads"
   "base-unix"
   "ocamlfind"
-  "optcomp"
   "lwt"
   "pcre"
 ]

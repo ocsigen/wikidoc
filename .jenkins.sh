@@ -11,4 +11,3 @@ do_build_doc () {
 do_remove () {
   opam remove --verbose wikidoc
 }
-

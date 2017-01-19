@@ -1,5 +1,6 @@
 open Util
 open Wiki_latex
+open Lwt.Infix
 
 let default_project, default_chapter =
   let pos = String.index Wiki_latex.label_prefix ':' in
@@ -239,10 +240,10 @@ let _ =
                   | Some f -> id ^ ":" ^ f
                 in
                 (* Parse contents *)
-                lwt contents = match contents with
+                begin match contents with
                   | Some contents -> Wiki_latex.inlinetex_of_wiki contents
                   | None -> raise (Doclink.Error "Empty contents")
-                in
+                end >>= fun contents ->
                 Lwt.return (Node3("\\hyperref[",
                                   [Leaf_unquoted (Wiki_latex.escape_label id);
                                    Leaf_unquoted "]{"] @ contents,
