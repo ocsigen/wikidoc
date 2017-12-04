@@ -175,7 +175,7 @@ let simpl_module_type ?code t =
         )
     | Types.Mty_functor (id, mt1, mt2) ->
         Types.Mty_functor (id, map_option iter mt1, iter mt2)
-    | Types.Mty_alias p -> t
+    | Types.Mty_alias _ -> t
   in
 
   iter t
