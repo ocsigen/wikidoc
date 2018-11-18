@@ -364,7 +364,7 @@ class virtual text =
         in
         bp b "<<a_api%s" (get_subproject ());
         begin match text_opt with
-          | Some text -> bp b " text=\"%a\"" self#html_of_text text
+          | Some text -> bp b " text=\"%a\"" (self#html_of_text ?with_p:None) text
           | None -> () end;
         bp b " | %s >>" target;
 
@@ -428,7 +428,7 @@ class virtual info =
     val mutable tag_functions = ([] : (string * (Odoc_info.text -> string)) list)
 
     (** The method used to get html code from a [text]. *)
-    method virtual html_of_text : Buffer.t -> Odoc_info.text -> unit
+    method virtual html_of_text : ?with_p:bool -> Buffer.t -> Odoc_info.text -> unit
 
     (** Print html for an author list. *)
     method html_of_author_list b l =
@@ -2216,9 +2216,9 @@ module Generator = struct
           (fun a -> a.att_value.val_name)
           (fun a -> a.att_value.val_info)
           (fun a ->
-             let s = String.copy a.att_value.val_name in
-             s.[String.rindex s '.'] <- '#';
-             s
+             let s = Bytes.of_string a.att_value.val_name in
+             Bytes.set s (Bytes.rindex s '.') '#';
+             Bytes.to_string s
           )
           Odoc_messages.index_of_attributes
           self#index_attributes
@@ -2231,9 +2231,9 @@ module Generator = struct
           (fun m -> m.met_value.val_name)
           (fun m -> m.met_value.val_info)
           (fun m ->
-             let s = String.copy m.met_value.val_name in
-             s.[String.rindex s '.'] <- '#';
-             s
+             let s = Bytes.of_string m.met_value.val_name in
+             Bytes.set s (Bytes.rindex s '.') '#';
+             Bytes.to_string s
           )
           Odoc_messages.index_of_methods
           self#index_methods

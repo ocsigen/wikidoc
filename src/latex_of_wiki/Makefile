@@ -22,7 +22,7 @@ OBJS := util.cmo \
         ocsigen_messages.cmo wikicreole.cmo \
 	wiki_latex.cmo wiki_menulatex.cmo \
 	doclink.cmo latex_of_wiki.cmo
-LIBS := -package str,lwt.preemptive,pcre,lwt
+LIBS := -package str,lwt.unix,pcre,lwt
 
 PREDEP := wikicreole.ml
 
