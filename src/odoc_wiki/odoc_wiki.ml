@@ -422,6 +422,7 @@ class virtual text =
 (** A class used to generate wiki code for info structures. *)
 class virtual info =
   object (self)
+
     (** The list of pairs [(tag, f)] where [f] is a function taking
         the [text] associated to [tag] and returning html code.
         Add a pair here to handle a tag.*)
@@ -451,7 +452,7 @@ class virtual info =
       | Some s ->
         bp b "**%s** %s\\\\\n" Odoc_messages.since s
 
-    (** Print html code for the given "before" information.*)
+    (* Print html code for the given "before" information.*)
     (* method html_of_before b l = *)
     (* let f (v, text) = *)
     (* bp b "**%s %s ** " Odoc_messages.before v; *)
@@ -669,22 +670,31 @@ module Generator = struct
 
       (** The file for the index of values. *)
       method index_values = Printf.sprintf "%s_values.wiki" self#index_prefix
+
       (** The file for the index of types. *)
       method index_types = Printf.sprintf "%s_types.wiki" self#index_prefix
+
       (** The file for the index of extensions. *)
       method index_extensions = Printf.sprintf "%s_extensions.wiki" self#index_prefix
+
       (** The file for the index of exceptions. *)
       method index_exceptions = Printf.sprintf "%s_exceptions.wiki" self#index_prefix
+
       (** The file for the index of attributes. *)
       method index_attributes = Printf.sprintf "%s_attributes.wiki" self#index_prefix
+
       (** The file for the index of methods. *)
       method index_methods = Printf.sprintf "%s_methods.wiki" self#index_prefix
+
       (** The file for the index of classes. *)
       method index_classes = Printf.sprintf "%s_classes.wiki" self#index_prefix
+
       (** The file for the index of class types. *)
       method index_class_types = Printf.sprintf "%s_class_types.wiki" self#index_prefix
+
       (** The file for the index of modules. *)
       method index_modules = Printf.sprintf "%s_modules.wiki" self#index_prefix
+
       (** The file for the index of module types. *)
       method index_module_types = Printf.sprintf "%s_module_types.wiki" self#index_prefix
 
@@ -692,30 +702,39 @@ module Generator = struct
       (** The list of attributes. Filled in the [generate] method. *)
       val mutable list_attributes = []
       method list_attributes = list_attributes
+
       (** The list of methods. Filled in the [generate] method. *)
       val mutable list_methods = []
       method list_methods = list_methods
+
       (** The list of values. Filled in the [generate] method. *)
       val mutable list_values = []
       method list_values = list_values
+
       (** The list of exceptions. Filled in the [generate] method. *)
       val mutable list_exceptions = []
       method list_exceptions = list_exceptions
+
       (** The list of extension. Filled in the [generate] method. *)
       val mutable list_extensions = []
       method list_extensions = list_extensions
+
       (** The list of types. Filled in the [generate] method. *)
       val mutable list_types = []
       method list_types = list_types
+
       (** The list of modules. Filled in the [generate] method. *)
       val mutable list_modules = []
       method list_modules = list_modules
+
       (** The list of module types. Filled in the [generate] method. *)
       val mutable list_module_types = []
       method list_module_types = list_module_types
+
       (** The list of classes. Filled in the [generate] method. *)
       val mutable list_classes = []
       method list_classes = list_classes
+
       (** The list of class types. Filled in the [generate] method. *)
       val mutable list_class_types = []
       method list_class_types = list_class_types
