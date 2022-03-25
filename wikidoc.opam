@@ -1,11 +1,12 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "dev@ocsigen.org"
 name: "wikidoc"
 version: "dev"
 author: "dev@ocsigen.org"
+synopsis: "Convert OCaml documentation to wiki"
 homepage: "https://github.com/ocsigen/wikidoc"
 bug-reports: "https://github.com/ocsigen/wikidoc/issues"
-dev-repo: "https://github.com/ocsigen/wikidoc.git"
+dev-repo: "git+https://github.com/ocsigen/wikidoc.git"
 build: [
   [ make "BINDIR=%{bin}%" ]
 ]
@@ -16,8 +17,8 @@ remove: [
   [ "ocamlfind" "remove" "wikidoc" ]
   [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
 ]
-available: [ocaml-version >= "4.03.0"]
 depends: [
+  "ocaml" {>= "4.10.0" & < "4.13.0"}
   "base-threads"
   "base-unix"
   "ocamlfind"
