@@ -21,8 +21,7 @@ let (modtype_fmt, flush_modtype_fmt, modtype_set_margin) = new_fmt ()
 
 let string_of_type_expr ?(margin = default_margin) t =
   type_set_margin margin;
-  Printtyp.mark_loops t;
-  Printtyp.type_scheme_max ~b_reset_names: false type_fmt t;
+  Printtyp.shared_type_scheme type_fmt t;
   flush_type_fmt ()
 
 let raw_string_of_type_list ?(margin = default_margin) sep type_list =
@@ -30,7 +29,7 @@ let raw_string_of_type_list ?(margin = default_margin) sep type_list =
   let fmt = Format.formatter_of_buffer buf in
   Format.pp_set_margin fmt margin;
   let rec need_parent t =
-    match t.Types.desc with
+    match Types.get_desc t with
       Types.Tarrow _ | Types.Ttuple _ -> true
     | Types.Tlink t2 | Types.Tsubst (t2, _) -> need_parent t2
     | Types.Tconstr _ ->
@@ -41,17 +40,16 @@ let raw_string_of_type_list ?(margin = default_margin) sep type_list =
     | _ -> false
   in
   let print_one_type variance t =
-    Printtyp.mark_loops t;
     if need_parent t then
       (
        Format.fprintf fmt "(%s" variance;
-       Printtyp.type_scheme_max ~b_reset_names: false fmt t;
+       Printtyp.shared_type_scheme fmt t;
        Format.fprintf fmt ")"
       )
     else
       (
        Format.fprintf fmt "%s" variance;
-       Printtyp.type_scheme_max ~b_reset_names: false fmt t
+       Printtyp.shared_type_scheme fmt t
       )
   in
   begin match type_list with
@@ -118,7 +116,7 @@ let string_of_class_type_param_list ?margin l =
     (if par then "]" else "")
 
 let rec is_arrow_type t =
-  match t.Types.desc with
+  match Types.get_desc t with
     Types.Tarrow _ -> true
   | Types.Tlink t2 | Types.Tsubst (t2, _) -> is_arrow_type t2
   (* | Types.Ttuple _ *)
@@ -140,7 +138,6 @@ let string_of_class_params ?(margin = default_margin) c =
             Odoc_misc.remove_option t
           else
             t in
-        Printtyp.mark_loops t;
         Format.fprintf fmt "@[<hov 2>%s%s%a%s@] ->@ "
           (
            match label with
@@ -149,7 +146,7 @@ let string_of_class_params ?(margin = default_margin) c =
             | Asttypes.Optional s -> "?"^s^":"
           )
           (if parent then "(" else "") (* TODO open_box ?*)
-          (Printtyp.type_scheme_max ~b_reset_names:false) ty
+          (Printtyp.shared_type_scheme) ty
           (if parent then ")" else "");
         iter ctype
     | Types.Cty_signature _
