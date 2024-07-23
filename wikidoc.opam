@@ -18,7 +18,7 @@ remove: [
   [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
 ]
 depends: [
-  "ocaml" {= "4.14.0" | = "4.14.1" | = "4.14.2"}
+  "ocaml" {>= "4.14.0" & < "5.1.0"}
   "base-threads"
   "base-unix"
   "ocamlfind"
