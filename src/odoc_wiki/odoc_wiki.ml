@@ -1291,7 +1291,7 @@ module Generator = struct
          | Type_record l ->
            bs b (" "^(self#delimiter "~=")^" ");
            if priv then bs b "private " ;
-           self#html_of_record b indent father l ;
+           self#html_of_record b ~indent ~father l ;
         );
         bs b ">>";
         self#html_of_info b t.ty_info;

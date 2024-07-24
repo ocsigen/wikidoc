@@ -8,9 +8,9 @@ OCAMLDUCEFIND ?= ocamlducefind
 OCAMLDOC     ?= ${OCAMLFIND} ocamldoc
 OCAMLDUCEDOC ?= ${OCAMLDUCEFIND} ocamldoc
 
-OCAMLC       ?= ${OCAMLFIND} ocamlc
+OCAMLC       ?= ${OCAMLFIND} ocamlc -package str 
 OCAMLDUCEC   ?= ${OCAMLDUCEFIND} ocamlc
-OCAMLOPT     ?= ${OCAMLFIND} ocamlopt
+OCAMLOPT     ?= ${OCAMLFIND} ocamlopt -package str
 OCAMLDUCEOPT ?= ${OCAMLDUCEFIND} ocamlopt
 OCAMLDEP     ?= ${OCAMLFIND} ocamldep
 OCAMLDUCEDEP ?= ${OCAMLDUCEFIND} ocamldep
