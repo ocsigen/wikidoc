@@ -93,7 +93,7 @@ let string_of_type_param_list ?margin t =
     (if par then "(" else "")
     (raw_string_of_type_list ?margin ", "
        (List.map
-          (fun (typ, co, cn) -> (Odoc_str.string_of_variance t (co, cn), typ))
+          (fun (typ, v) -> (Odoc_str.string_of_variance t v, typ))
           t.Odoc_type.ty_parameters
        )
     )
