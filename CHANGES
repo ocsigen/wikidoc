@@ -2,3 +2,5 @@
 
   * Port to OCaml 5.x compiler-libs API (replaces Printtyp.mark_loops,
     Types.get_desc, Odoc_html.text class merger, Module_apply_unit, ...).
+  * Remove dead OCamlduce build rules and the obsolete commented-out
+    OCSIGEN 1.2/1.3 wikidoc targets.
