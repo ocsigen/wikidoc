@@ -1,0 +1,19 @@
+Wikidoc is distributed under two licenses, on a per-file basis. The
+SPDX expression for the project as a whole is:
+
+    GPL-2.0-or-later AND QPL-1.0
+
+License breakdown:
+
+  * The odoc_wiki plugin (src/odoc_wiki/) is derived from the OCaml
+    ocamldoc standard generators and is distributed under the Q Public
+    License version 1.0 (see LICENSE.QPL-1.0). odoc_wiki.ml carries
+    an explicit QPL-1.0 header; odoc_import.ml ships without a header
+    but inherits the QPL-1.0 of the surrounding plugin.
+
+  * The latex_of_wiki tool (src/latex_of_wiki/) is distributed under
+    the GNU General Public License version 2 or later (see LICENSE.GPL-2).
+    wiki_latex.ml and wiki_menulatex.ml carry explicit GPL-2-or-later
+    headers and are Copyright (C) 2010 Vincent Balat. The other files
+    in src/latex_of_wiki/ ship without a header but inherit the
+    GPL-2-or-later of the surrounding tool.
