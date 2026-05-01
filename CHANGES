@@ -1,0 +1,4 @@
+===== dev =====
+
+  * Port to OCaml 5.x compiler-libs API (replaces Printtyp.mark_loops,
+    Types.get_desc, Odoc_html.text class merger, Module_apply_unit, ...).
