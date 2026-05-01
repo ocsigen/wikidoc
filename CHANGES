@@ -13,3 +13,5 @@
   * Add LICENSE / LICENSE.GPL-2 / LICENSE.QPL-1.0 documenting the
     per-component licensing (latex_of_wiki under GPL-2-or-later,
     odoc_wiki under QPL-1.0 as a derivative of the ocamldoc generators).
+  * Add a GitHub Actions workflow building on Ubuntu and macOS against
+    OCaml 5.0 and 5.4, plus an opam lint job.
