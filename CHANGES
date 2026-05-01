@@ -7,3 +7,6 @@
   * Populate the (previously empty) META file with description, dependencies
     (compiler-libs.common, ocamldoc, str) and archive/plugin entries so the
     package is usable via `ocamlfind`.
+  * Modernise wikidoc.opam to opam 2.0 format. Add synopsis, description and
+    license (GPL-2.0-or-later AND QPL-1.0); drop unused dependencies
+    (`base-threads`, `base-unix`); require `ocaml >= 5.0`.

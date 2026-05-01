@@ -1,27 +1,28 @@
 opam-version: "2.0"
+synopsis: "Ocamldoc generator for Ocsimore wiki, plus a wiki-to-LaTeX converter"
+description: """
+Wikidoc provides:
+- odoc_wiki, an ocamldoc plugin generating Ocsimore-compatible wiki output
+  from OCaml interfaces;
+- latex_of_wiki, a tool converting Ocsimore wiki sources to LaTeX.
+
+These tools are used to build the ocsigen.org documentation.
+"""
 maintainer: "dev@ocsigen.org"
-name: "wikidoc"
-version: "dev"
-author: "dev@ocsigen.org"
-synopsis: "Convert OCaml documentation to wiki"
+authors: "dev@ocsigen.org"
+license: "GPL-2.0-or-later AND QPL-1.0"
 homepage: "https://github.com/ocsigen/wikidoc"
 bug-reports: "https://github.com/ocsigen/wikidoc/issues"
 dev-repo: "git+https://github.com/ocsigen/wikidoc.git"
-build: [
-  [ make "BINDIR=%{bin}%" ]
-]
-install: [
-  [ make "BINDIR=%{bin}%" "install" ]
-]
+build: [ make "BINDIR=%{bin}%" ]
+install: [ make "BINDIR=%{bin}%" "install" ]
 remove: [
   [ "ocamlfind" "remove" "wikidoc" ]
   [ "rm" "-f" "%{bin}%/latex_of_wiki" ]
 ]
 depends: [
-  "ocaml" {>= "4.14.0" & < "5.1.0"}
-  "base-threads"
-  "base-unix"
-  "ocamlfind"
+  "ocaml" {>= "5.0"}
+  "ocamlfind" {build}
   "lwt"
   "pcre"
 ]
