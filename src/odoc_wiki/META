@@ -1,1 +1,7 @@
- 
+description = "ocamldoc generator producing Ocsimore-compatible wiki output"
+version = "[distributed with wikidoc]"
+requires = "compiler-libs.common ocamldoc str"
+archive(byte) = "odoc_wiki.cma"
+archive(native) = "odoc_wiki.cmxa"
+plugin(byte) = "odoc_wiki.cma"
+plugin(native) = "odoc_wiki.cmxs"

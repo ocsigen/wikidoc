@@ -4,3 +4,6 @@
     Types.get_desc, Odoc_html.text class merger, Module_apply_unit, ...).
   * Remove dead OCamlduce build rules and the obsolete commented-out
     OCSIGEN 1.2/1.3 wikidoc targets.
+  * Populate the (previously empty) META file with description, dependencies
+    (compiler-libs.common, ocamldoc, str) and archive/plugin entries so the
+    package is usable via `ocamlfind`.
