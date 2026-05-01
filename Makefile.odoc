@@ -1,12 +1,6 @@
 
 ODOC_WIKI := src/odoc_wiki/odoc_wiki.cma  src/odoc_wiki/odoc_wiki.cmxs
 
-ifeq "${OCAMLDUCE}" "YES"
-ODOC_DUCE_WIKI := src/odoc_wiki/odoc_duce_wiki.cma src/odoc_wiki/odoc_duce_wiki.cmxs
-else
-ODOC_DUCE_WIKI := ${ODOC_WIKI}
-endif
-
 all::
 	${MAKE} -C src/odoc_wiki
 
@@ -14,11 +8,6 @@ src/odoc_wiki/odoc_wiki.cma:
 	${MAKE} -C src/odoc_wiki odoc_wiki.cma
 src/odoc_wiki/odoc_wiki.cmxs:
 	${MAKE} -C src/odoc_wiki odoc_wiki.cmxs
-
-src/odoc_wiki/odoc_duce_wiki.cma:
-	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cma
-src/odoc_wiki/odoc_duce_wiki.cmxs:
-	${MAKE} -C src/odoc_wiki odoc_duce_wiki.cmxs
 
 api: lwt js_of_ocaml tyxml server eliom oclosure
 
@@ -66,48 +55,6 @@ server server.install:
 eliom eliom.install:
 	@$(call deprecated_message,eliom,make -C doc/server wikidoc; make -C doc/client wikidoc,doc/server/api-wiki/*.wiki and doc/client/api-wiki/*.wiki,/server and .../client)
 
-######## WIKIDOC OCSIGEN 1.3 ########
-
-# OCSIGEN13_DIR=${SRCROOT}/ocsigen-1.3/
-# -include Makefile.oldfilelist
-
-# DOC13INCLUDES = ${addprefix -I ${OCSIGEN13_DIR}/,${DOC13INCLUDESDIR}} \
-# 	-package ocsigen,ocamlduce,lwt
-
-# .PHONY:ocserveliom13
-# ocserveliom13: ${ODOC_WIKI}
-# 	rm -rf wiki/odoc-$@
-# 	mkdir -p wiki/odoc-$@
-# 	OCAMLPATH=${OCSIGEN13_DIR}/files:${OCAMLPATH} \
-# 	  ${OCAMLDUCEDOC} -g ${ODOC_DUCE_WIKI} \
-# 	    -d wiki/odoc-$@ -intro ${OCSIGEN13_DIR}/files/indexdoc -colorize-code \
-# 	    ${DOC13INCLUDES} ${addprefix ${OCSIGEN13_DIR}/,${DOC13}}
-
-# OCSIGEN13_VERSION ?= 1.3
-# ocserveliom13.install:
-# 	${call odoc_wiki_install,wiki/odoc-ocserveliom13,oscigenserver,${OCSIGEN13_VERSION}}
-
-######## WIKIDOC OCSIGEN 1.2 ########
-
-# OCSIGEN12_DIR=${SRCROOT}/ocsigen-1.2/
-# -include Makefile.oldfilelist
-
-# DOC12INCLUDES = ${addprefix -I ${OCSIGEN12_DIR}/,${DOC12INCLUDESDIR}} \
-# 	-package ocsigen,ocamlduce,lwt
-
-# .PHONY:ocserveliom12
-# ocserveliom12: ${ODOC_WIKI}
-# 	rm -rf wiki/odoc-$@
-# 	mkdir -p wiki/odoc-$@
-# 	OCAMLPATH=${OCSIGEN12_DIR}:${OCAMLPATH} \
-# 	  ${OCAMLDUCEDOC} -g ${ODOC_DUCE_WIKI} \
-# 	    -d wiki/odoc-$@ -intro ${OCSIGEN12_DIR}/files/indexdoc -colorize-code \
-# 	    ${DOC12INCLUDES} ${addprefix ${OCSIGEN12_DIR}/,${DOC10}}
-
-# OCSIGEN12_VERSION ?= 1.2
-# ocserveliom12.install:
-# 	${call odoc_wiki_install,wiki/odoc-ocserveliom12,ocsigenserver,${OCSIGEN12_VERSION}}
-
 ######## WIKIDOC OCLOSURE ########
 
 .PHONY: oclosure
@@ -126,7 +73,7 @@ odoc_wiki_install=\
 ###
 
 install::
-	${OCAMLFIND} install wikidoc src/odoc_wiki/META ${ODOC_WIKI} ${ODOC_DUCE_WIKI}
+	${OCAMLFIND} install wikidoc src/odoc_wiki/META ${ODOC_WIKI}
 
 uninstall::
 	${OCAMLFIND} remove wikidoc

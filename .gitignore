@@ -4,3 +4,8 @@
 src/latex_of_wiki/latex_of_wiki
 src/latex_of_wiki/wikicreole.ml
 _opam/
+
+# AI session reports — symlinks to ../ia-reports/
+20*-*.md
+# Per-machine AGENTS overrides
+AGENTS-*.md

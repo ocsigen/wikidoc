@@ -1,0 +1,17 @@
+===== dev =====
+
+  * Port to OCaml 5.x compiler-libs API (replaces Printtyp.mark_loops,
+    Types.get_desc, Odoc_html.text class merger, Module_apply_unit, ...).
+  * Remove dead OCamlduce build rules and the obsolete commented-out
+    OCSIGEN 1.2/1.3 wikidoc targets.
+  * Populate the (previously empty) META file with description, dependencies
+    (compiler-libs.common, ocamldoc, str) and archive/plugin entries so the
+    package is usable via `ocamlfind`.
+  * Modernise wikidoc.opam to opam 2.0 format. Add synopsis, description and
+    license (GPL-2.0-or-later AND QPL-1.0); drop unused dependencies
+    (`base-threads`, `base-unix`); require `ocaml >= 5.0`.
+  * Add LICENSE / LICENSE.GPL-2 / LICENSE.QPL-1.0 documenting the
+    per-component licensing (latex_of_wiki under GPL-2-or-later,
+    odoc_wiki under QPL-1.0 as a derivative of the ocamldoc generators).
+  * Add a GitHub Actions workflow building on Ubuntu and macOS against
+    OCaml 5.0 and 5.4, plus an opam lint job.
